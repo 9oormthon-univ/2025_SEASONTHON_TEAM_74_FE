@@ -3,6 +3,7 @@ import './App.css';
 import TestPage from './pages/TestPage';
 import HomePage from './pages/HomePage';
 import CreateRoom from './pages/CreateRoom';
+import JoinRoom from './pages/JoinRoom';
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
       <Route path="/test" element={<TestPage />} />
       <Route path="/" element={<HomePage />} />
       <Route path="/create-room" element={<CreateRoom />} />
+      <Route path="/join-room" element={<JoinRoom />} />
     </Routes>
   );
 }

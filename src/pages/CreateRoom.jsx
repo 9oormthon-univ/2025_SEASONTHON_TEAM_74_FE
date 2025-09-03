@@ -37,12 +37,12 @@ const CreateRoom = () => {
         <Wrapper>
             <TitleHeader title="방 만들기" />
             <BodyContainer>
-                <Heading>방을 만들어보세요!</Heading>
+                <Heading>방을 만들어 보세요!</Heading>
 
                 {/* 입력 필드 */}
                 <InputBox>
                     <Label>방장</Label>
-                    <Input type="text" placeholder="닉네임을 적어주세요." />
+                    <Input type="text" placeholder="닉네임을 입력해 주세요." />
                 </InputBox>
 
                 <InputBox>
@@ -52,7 +52,7 @@ const CreateRoom = () => {
 
                 <InputBox>
                     <Label>비밀번호</Label>
-                    <Input type="password" placeholder="비밀번호를 설정할 수 있어요. 원하지 않으면 비워두세요." />
+                    <Input type="password" placeholder="비밀번호를 설정할 수 있어요. (선택)" />
                 </InputBox>
 
                 <InputBox>
@@ -72,7 +72,7 @@ const CreateRoom = () => {
                 <InputBox>
                     <Label>라운드</Label>
                     <Select value={round} onChange={(e) => setRound(e.target.value)}>
-                        <option disabled hidden>최대 10개의 라운드까지 설정할 수 있어요.</option>
+                        <option value="" disabled hidden>최대 10 라운드까지 설정할 수 있어요.</option>
                         {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((r) => (
                             <option key={r} value={r}>{r}</option>
                         ))}
@@ -98,7 +98,7 @@ const CreateRoom = () => {
                 <InputBox>
                     <Label>연도 설정</Label>
                     <Select value={year} onChange={(e) => setYear(e.target.value)}>
-                        <option disabled hidden>게임을 진행할 연도를 설정해주세요.</option>
+                        <option value="" disabled hidden>게임을 진행할 연도를 설정해 주세요.</option>
                         {[2000, 2005, 2010, 2015].map((y) => (
                             <option key={y} value={y}>{y}</option>
                         ))}
