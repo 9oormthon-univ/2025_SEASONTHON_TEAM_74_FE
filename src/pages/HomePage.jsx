@@ -66,7 +66,7 @@ const HeroSection = styled.div`
   gap: 100px;
   height: 340px;
   padding: 35px 100px;
-
+  margin: 10px 0;
   // border: 2px solid red;
 `;
 
@@ -78,21 +78,21 @@ const TitleContainer = styled.div`
 `;
 
 const MainTitle = styled.h1`
-  font-size: 64px;
+  font-size: 90px;
   font-weight: 200;
-  margin: 0;
+  margin: 30px 0;
 `;
 
 const HighlightLetter = styled.span`
   color: var(--color-secondary);
   font-weight: 600;
-  font-size: 64px;
+  font-size: 90px;
 `;
 
 const SubTitle = styled.p`
   font-size: 36px;
   font-weight: 200;
-  margin: 5px 0 0 0;
+  margin: 30px 0;
   color: var(--color-text);
 `;
 
@@ -101,6 +101,7 @@ const MainSection = styled.div`
   align-items: center;
   justify-content: center;
   gap: 50px;
+  margin: 80px 0;
 `;
 
 const ButtonGroup = styled.div`
