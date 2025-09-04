@@ -4,6 +4,7 @@ import TestPage from './pages/TestPage';
 import HomePage from './pages/HomePage';
 import CreateRoom from './pages/CreateRoom';
 import JoinRoom from './pages/JoinRoom';
+import Invest from './pages/Invest';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
       <Route path="/" element={<HomePage />} />
       <Route path="/create-room" element={<CreateRoom />} />
       <Route path="/join-room" element={<JoinRoom />} />
+      <Route path="/invest" element={<Invest />} />
     </Routes>
   );
 }
