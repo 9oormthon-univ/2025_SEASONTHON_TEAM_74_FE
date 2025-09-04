@@ -1,8 +1,15 @@
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const StockCardEx = () => {
+  const navigate = useNavigate();
+  
+  const navigateToStockCard = () => {
+    navigate("/stock-card");
+  }
+
   return (
-    <CardContainer>
+    <CardContainer onClick={navigateToStockCard}>
       <Card className="card1" />
       <Card className="card2" />
       <Card className="card3" />
