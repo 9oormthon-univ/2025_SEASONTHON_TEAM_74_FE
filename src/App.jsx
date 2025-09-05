@@ -5,6 +5,7 @@ import HomePage from './pages/HomePage';
 import CreateRoom from './pages/CreateRoom';
 import JoinRoom from './pages/JoinRoom';
 import StockCard from './pages/StockCard';
+import GameGuide from './pages/GameGuide';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
       <Route path="/create-room" element={<CreateRoom />} />
       <Route path="/join-room" element={<JoinRoom />} />
       <Route path="/stock-card" element={<StockCard />} />
+      <Route path="/game-guide" element={<GameGuide />} />
     </Routes>
   );
 }

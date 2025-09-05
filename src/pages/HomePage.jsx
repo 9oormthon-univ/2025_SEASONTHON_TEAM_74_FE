@@ -1,14 +1,15 @@
-import styled from "styled-components";
 import Header from "../components/Header";
 import PageButton from "../components/PageButton";
 import StockCardEx from "../components/StockCardEx";
 
+import styled from "styled-components";
 import logo from "./../assets/images/logo.png";
 import createRoom from "./../assets/images/createRoom.png";
 import participate from "./../assets/images/participate.png";
 import guide from "./../assets/images/guide.png";
 
 const HomePage = () => {
+  
   return (
     <HomeContainer>
       <Header />
@@ -32,13 +33,13 @@ const HomePage = () => {
       <MainSection>
         {/* 타 페이지로 이동하는 버튼 모음 */}
         <ButtonGroup>
-          <PageButton to="/test" icon={createRoom} alt="생성">
+          <PageButton to="/create-room" icon={createRoom} alt="생성">
             방 만들기
           </PageButton>
-          <PageButton to="/test" icon={participate} alt="참여">
+          <PageButton to="/join-room" icon={participate} alt="참여">
             참가하기
           </PageButton>
-          <PageButton to="/test" icon={guide} alt="가이드">
+          <PageButton to="/game-guide" icon={guide} alt="가이드">
             게임방법
           </PageButton>
         </ButtonGroup>

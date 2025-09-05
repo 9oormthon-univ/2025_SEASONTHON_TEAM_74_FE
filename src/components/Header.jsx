@@ -1,13 +1,21 @@
+import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../context/authStore';
+
 import styled from 'styled-components';
 import "./../assets/styles/variables.css";
-import right from "./../assets/images/right.png"
-import { useAuthStore } from '../context/authStore';
+import right from "./../assets/images/right.png";
+
 const Header = () => {
+  const navigate = useNavigate();
   const {user} = useAuthStore();
+
+  const navigateToHome = () => {
+    navigate("/home");
+  }
 
   return (
     <HeaderWrapper>
-      <HeaderLeft>
+      <HeaderLeft onClick={navigateToHome}>
         motu
       </HeaderLeft>
 
@@ -45,12 +53,16 @@ const HeaderWrapper = styled.header`
 
   height: 80px;
   border-bottom: 2px solid var(--color-text);
+  padding: 0 100px;  
 `;
+
 
 const HeaderLeft = styled.div`
   padding: 10px 30px;
   font-size: 24px;
   font-weight: 600;
+
+  cursor: pointer;
 `;
 
 
