@@ -1,30 +1,39 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { useAuthStore } from "../context/authStore";
+import axios from "axios";
 
-const KakaoRedirect = (props) => {
+const KakaoRedirect = () => {
   const navigate = useNavigate();
+  const hasExecuted = useRef(false);
+
+  const { login } = useAuthStore();
+
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
 
   const code = new URL(window.location.href).searchParams.get("code");
-  console.log("인가코드: ", code);
 
   useEffect(() => {
-    if(!code) return ;
+    if(!code || hasExecuted.current) return ;
+    
+    console.log("인가코드: ", code);
+    hasExecuted.current = true;
 
     const handleKakaoLogin = async () => {
       try {
-        const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/user/callback`, { 
-          code: code,
-        });
+        const res = await axios.post(`${API_BASE_URL}/api/user/callback?code=${code}`);
 
         if(res.data.isSuccess) {
           console.log("로그인 후 응답: ", res.data);
-          const { accessToken, id, email, nickname } = res.data.result;
+          const userData = res.data.result;
 
           // jwt와 사용자 정보 저장
-          localStorage.setItem("token", accessToken);
-          localStorage.setItem("user_id", String(id));
-          localStorage.setItem("user_email", email);
-          localStorage.setItem("user_nickname", nickname);
+          login({
+            id: userData.id,
+            email: userData.email,
+            nickname: userData.nickname,
+            accessToken: userData.accessToken,
+          });
 
           navigate("/home");
         }
@@ -34,12 +43,15 @@ const KakaoRedirect = (props) => {
       }
       catch (err) {
         console.log("카카오 로그인 처리 중 에러 발생: ", err);
-        navigate("");
+        console.log("에러 응답 데이터: ", err.response?.data); // 서버에서 보낸 에러 메시지
+        console.log("요청 URL: ", `${API_BASE_URL}/api/user/callback?code=${code}`);
+
+        navigate("/");
       }
     };
     
     handleKakaoLogin();
-  }, [code, navigate]); // 의존성 배열에 props.his
+  }, [code]); // 사용자가 로그인할 때마다 로그인 API 호출한다.
 
   return (
     <>
