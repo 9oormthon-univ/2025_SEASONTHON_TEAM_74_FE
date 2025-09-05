@@ -7,30 +7,30 @@ const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 const onlyDigits = (v) => v.replace(/[^\d]/g, '');
 
 const CreateRoom = () => {
-    const [hostname, setHostname] = useState("");       // 방장
-    const [maxPlayers, setMaxPlayers] = useState("");   // 최대 인원(1~36명)
-    const [password, setPassword] = useState("");       // 비밀번호
-    const [gameCode, setGameCode] = useState("");       // 게임 코드
+    const [nickname, setNickname] = useState("");       // 방장
+    const [maxMember, setMaxMember] = useState("");     // 최대 인원(1~36명)
+    const [pwd, setPwd] = useState("");                 // 비밀번호
+    const [inviteCode, setInviteCode] = useState("");   // 게임 코드
     const [copy, setCopy] = useState(false);            // 게임 코드 복사
 
     // 게임 설정
-    const [team, setTeam] = useState("");               // 팀 개수 설정(1~6)
-    const [round, setRound] = useState("");             // 라운드
+    const [maxTeam, setMaxTeam] = useState("");         // 팀 개수 설정(1~6)
+    const [maxRound, setMaxRound] = useState("");       // 라운드
     const [mode, setMode] = useState("");               // 모드
-    const [year, setYear] = useState("");               // 연도 설정
-    const [seed, setSeed] = useState("");               // 시드머니(10,000 ~ 1,000,000)
+    const [yearSet, setYearSet] = useState("");         // 연도 설정
+    const [seedMoney, setSeedMoney] = useState("");     // 시드머니(10,000 ~ 1,000,000)
 
     // 게임 코드 생성
     const handleCode = () => {
         const code = Math.random().toString(36).substring(2, 8).toUpperCase();
-        setGameCode(code);
+        setInviteCode(code);
         setCopy(false);
     }
 
     // 게임 코드 복사
     const handleCopy = () => {
-        if (gameCode) {
-            navigator.clipboard.writeText(gameCode);
+        if (inviteCode) {
+            navigator.clipboard.writeText(inviteCode);
             setCopy(true);
         }
     }
@@ -64,10 +64,10 @@ const CreateRoom = () => {
                 <InputBox>
                     <Label>방장</Label>
                     <Input 
-                        value={hostname}
+                        value={nickname}
                         type="text" 
                         placeholder="닉네임을 입력해 주세요." 
-                        onChange={(e) => setHostname(e.target.value)}
+                        onChange={(e) => setNickname(e.target.value)}
                     />
                 </InputBox>
 
@@ -75,14 +75,14 @@ const CreateRoom = () => {
                 <InputBox>
                     <Label>최대 인원</Label>
                     <Input 
-                        value={maxPlayers}
+                        value={maxMember}
                         type="number" 
                         placeholder="1명에서 36명까지 선택할 수 있어요." 
                         min="1" 
                         max="36"
                         inputMode="numeric"
-                        onChange={handleNumChange(setMaxPlayers)}
-                        onBlur={handleClampOnBlur(setMaxPlayers, 1, 36)}
+                        onChange={handleNumChange(setMaxMember)}
+                        onBlur={handleClampOnBlur(setMaxMember, 1, 36)}
                     />
                 </InputBox>
 
@@ -90,10 +90,10 @@ const CreateRoom = () => {
                 <InputBox>
                     <Label>비밀번호</Label>
                     <Input 
-                        value={password}
+                        value={pwd}
                         type="password" 
                         placeholder="비밀번호를 설정할 수 있어요. (선택)" 
-                        onChange={(e) => setPassword(e.target.value)}
+                        onChange={(e) => setPwd(e.target.value)}
                     />
                 </InputBox>
 
@@ -102,8 +102,8 @@ const CreateRoom = () => {
                     <Label>게임 코드</Label>
                     <Row>
                         <CodeBtn type="button" onClick={handleCode}>생성</CodeBtn>
-                        <CodeBox>{gameCode || '· · ·'}</CodeBox>
-                        <CodeBtn type="button" onClick={handleCopy} disabled={!gameCode}>
+                        <CodeBox>{inviteCode || '· · ·'}</CodeBox>
+                        <CodeBtn type="button" onClick={handleCopy} disabled={!inviteCode}>
                             {copy ? '복사됨' : '복사'}
                         </CodeBtn>
                     </Row>
@@ -116,21 +116,21 @@ const CreateRoom = () => {
                 <InputBox>
                     <Label>팀 개수 설정</Label>
                     <Input 
-                        value={team}
+                        value={maxTeam}
                         type="number" 
                         placeholder="최대 6팀까지 만들 수 있어요." 
                         min="1" 
                         max="6"
                         inputMode="numeric"
-                        onChange={handleNumChange(setTeam)}
-                        onBlur={handleClampOnBlur(setTeam, 1, 6)}
+                        onChange={handleNumChange(setMaxTeam)}
+                        onBlur={handleClampOnBlur(setMaxTeam, 1, 6)}
                     />
                 </InputBox>
 
                 {/* 라운드 */}
                 <InputBox>
                     <Label>라운드</Label>
-                    <Select value={round} onChange={(e) => setRound(e.target.value)}>
+                    <Select value={maxRound} onChange={(e) => setMaxRound(e.target.value)}>
                         <option value="" disabled hidden>
                             최대 10개의 라운드까지 설정할 수 있어요.
                         </option>
@@ -162,7 +162,7 @@ const CreateRoom = () => {
                 {/* 연도 설정 */}
                 <InputBox>
                     <Label>연도 설정</Label>
-                    <Select value={year} onChange={(e) => setYear(e.target.value)}>
+                    <Select value={yearSet} onChange={(e) => setYearSet(e.target.value)}>
                         <option value="" disabled hidden>
                             게임을 진행할 연도를 설정해 주세요.
                         </option>
@@ -178,15 +178,15 @@ const CreateRoom = () => {
                 <InputBox>
                     <Label>시드머니</Label>
                     <Input
-                        value={seed}
+                        value={seedMoney}
                         type="number"
                         placeholder="첫 투자 자금을 설정하세요 (10,000 ~ 1,000,000)"
                         min="10000" 
                         max="1000000" 
                         inputMode="numeric"
                         step="1000" 
-                        onChange={handleNumChange(setSeed)}
-                        onBlur={handleClampOnBlur(setSeed, 10000, 1000000, 1000)}
+                        onChange={handleNumChange(setSeedMoney)}
+                        onBlur={handleClampOnBlur(setSeedMoney, 10000, 1000000, 1000)}
                     />
                 </InputBox>
                 
