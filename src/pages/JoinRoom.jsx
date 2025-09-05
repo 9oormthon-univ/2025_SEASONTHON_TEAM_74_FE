@@ -1,11 +1,57 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import TitleHeader from '../components/TitleHeader';
+import axios from 'axios';
+
+const apiUrl = import.meta.env.VITE_API_URL;
 
 const JoinRoom = () => {
-    //const [code, setCode] = useState("");
-    //const [nickname, setNickname] = useState("");
-    //const [password, setPassword] = useState("");
+    const navigate = useNavigate();
+
+    const [nickname, setNickname] = useState("");
+    const [inviteCode, setInviteCode] = useState("");
+    const [pwd, setPwd] = useState("");
+
+    // 방 참가하기 API
+    const handleJoin = async () => {
+        // 입력값 검증
+        if (!inviteCode.trim()) return alert('게임 코드를 입력해 주세요.');
+
+        const payload = {
+            nickname: nickname.trim() || undefined,
+            inviteCode: inviteCode.trim(),
+            pwd: pwd.trim() || undefined,
+        };
+
+        console.log('payload:', payload);
+
+        const raw = localStorage.getItem('userData');
+        const token = raw ? (JSON.parse(raw).accessToken || JSON.parse(raw).token || JSON.parse(raw).jwt) : null;
+        console.log('[TOKEN]', token);
+
+        try {
+            const { data } = await axios.post(`${apiUrl}/api/rooms/join`, payload, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                },
+            });
+
+            if (!data?.isSuccess) {
+                throw new Error(data?.message || '방 참가하기 실패');
+            }
+
+            console.log('방 참가하기 완료:', data);
+            
+            // for test
+            navigate('/test');
+        } catch (err) {
+            console.error(err);
+            console.error(err?.response?.data);
+            alert(err?.response?.data?.message || err.message || '방 참가하기 실패');
+        }
+    }
 
     return (
         <Wrapper>
@@ -16,22 +62,37 @@ const JoinRoom = () => {
                 {/* 닉네임 */}
                 <InputBox>
                     <Label>닉네임</Label>
-                    <Input type="text" placeholder="게임에서 사용할 닉네임을 입력해 주세요." />
+                    <Input 
+                        value={nickname}
+                        type="text" 
+                        placeholder="게임에서 사용할 닉네임을 입력해 주세요. (선택)" 
+                        onChange={(e) => setNickname(e.target.value)}
+                    />
                 </InputBox>
 
                 {/* 게임 코드 */}
                 <InputBox>
                     <Label>게임 코드</Label>
-                    <Input type="text" placeholder="초대 받은 코드를 입력해 주세요." />
+                    <Input 
+                        value={inviteCode}
+                        type="text" 
+                        placeholder="초대 받은 코드를 입력해 주세요." 
+                        onChange={(e) => setInviteCode(e.target.value)}
+                    />
                 </InputBox>
 
                 {/* 비밀번호 */}
                 <InputBox>
                     <Label>비밀번호</Label>
-                    <Input type="password" placeholder="비밀번호를 입력해 주세요." />
+                    <Input 
+                        value={pwd}
+                        type="password" 
+                        placeholder="방에 비밀번호가 설정되어 있다면 입력해 주세요." 
+                        onChange={(e) => setPwd(e.target.value)} 
+                    />
                 </InputBox>
 
-                <JoinBtn>입장하기</JoinBtn>
+                <JoinBtn onClick={handleJoin}>입장하기</JoinBtn>
             </BodyContainer>
         </Wrapper>
     );
