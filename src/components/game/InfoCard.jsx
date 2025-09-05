@@ -21,7 +21,7 @@ export default InfoCard;
 const Wrapper = styled.div`
     width: 100%;
     max-width: 1200px;
-    height: 220px;
+    min-height: 140px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -45,10 +45,11 @@ const Heading = styled.span`
 const Container = styled.div`
     width: 100%;
     max-width: 1100px;
-    height: 140px;
     padding: 16px 24px;
     background-color: #FFFFFF;
     text-align: left;
+    display: flex;
+    align-items: center;
 `;
 
 const List = styled.ul`

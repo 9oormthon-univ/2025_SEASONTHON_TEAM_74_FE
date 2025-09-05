@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import TitleHeader from '../components/TitleHeader';
 import InfoCard from '../components/game/InfoCard';
 import InvestCard from '../components/game/InvestCard';
+import PortfolioCard from '../components/game/PortfolioCard';
 
 const Invest = () => {
     const money = "1,000,000";
@@ -15,6 +16,24 @@ const Invest = () => {
         price: 67417,
         owned: 0,
     }));
+
+    const portfolios = Array.from({ length: 16 }, (_, i) => ({
+        id: i,
+        industry: "AI 반도체",
+        capital: "3조 | 최근 수익률: +12%",
+        risk: "신규 AI 서버 대량 수주",
+        issue: "삼성전자, 엔비디아와 협력 강화",
+        rating: "★★★★☆",
+        comment: "단기 변동성 있지만 장기 성장 가능",
+    }));
+
+    const [selectedId, setSelectedId] = useState(null);
+
+    const handleOpenPortfolio = (id) => setSelectedId(id);
+    const handleClosePortfolio = () => setSelectedId(null);
+
+    const stock = selectedId != null ? stocks.find(s => s.id === selectedId) : null;
+    const portfolio = selectedId != null ? portfolios.find(p => p.id === selectedId) : null;
 
     return (
         <Wrapper>
@@ -37,16 +56,34 @@ const Invest = () => {
                 <InvestCardContainer>
                     {stocks.map((stock) => (
                         <InvestCard
-                            key={stock.id}
+                            id={stock.id}
                             name={stock.name}
                             category={stock.category}
                             rate={stock.rate}
                             price={stock.price}
                             owned={stock.owned}
+                            openPortfolio={handleOpenPortfolio}
                         />
                     ))}
                 </InvestCardContainer>
+
+                <InfoCard 
+                    title="보유 :" 
+                    items={[
+                        "A 뷰티 주식 1주를 샀어요.",
+                        "B 자동차 주식 2주를 샀어요."
+                    ]}
+                />
             </BodyContainer>
+
+            {/* 포트폴리오 오버레이 */}
+            {stock && portfolio && (
+                <PortfolioCard
+                    name={stock.name}
+                    data={portfolio}
+                    onClose={handleClosePortfolio}
+                />
+            )}
         </Wrapper>
     );
 }
@@ -94,5 +131,5 @@ const InvestCardContainer = styled.div`
     grid-template-rows: repeat(4, auto);
     grid-template-columns: repeat(4, 1fr);
     gap: 32px 40px;
-    margin-top: 40px;
+    margin: 40px 0;
 `;

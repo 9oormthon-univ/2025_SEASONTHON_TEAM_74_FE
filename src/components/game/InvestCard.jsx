@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const InvestCard = ({ name, category, rate, price, owned }) => {
+const InvestCard = ({ id, name, category, rate, price, owned, openPortfolio }) => {
     return (
         <Wrapper>
             <Box>
@@ -15,7 +15,9 @@ const InvestCard = ({ name, category, rate, price, owned }) => {
                 <Info>가격 : {price} 원</Info>
                 <Info>보유 : {owned}</Info>
 
-                <PortfolioBtn>포트폴리오</PortfolioBtn>
+                <PortfolioBtn onClick={() => openPortfolio?.(id)}>
+                    포트폴리오
+                </PortfolioBtn>
             </Box>
 
             <BtnContainer>
