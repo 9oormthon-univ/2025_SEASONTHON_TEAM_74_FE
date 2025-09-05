@@ -4,6 +4,8 @@ import TitleHeader from '../components/TitleHeader';
 import InfoCard from '../components/game/InfoCard';
 import InvestCard from '../components/game/InvestCard';
 import PortfolioCard from '../components/game/PortfolioCard';
+import NextButton from '../components/game/NextButton';
+import ChatButton from '../components/game/ChatButton';
 
 const Invest = () => {
     const money = "1,000,000";
@@ -37,15 +39,18 @@ const Invest = () => {
 
     return (
         <Wrapper>
+            {/* 헤더 */}
             <TitleHeader title="투자" />
             <BodyContainer>
+                {/* 타이틀 및 팀 자산 */}
                 <Row>
                     <Heading>투자 제한시간 3분 30초! 지금 바로 결정하세요!</Heading>
                     <Heading>팀 자산: {money}</Heading>
                 </Row>
 
+                {/* 힌트 */}
                 <InfoCard 
-                    title="2018 힌트 :" 
+                    title="2018 힌트 :"
                     items={[
                         "평창 동계올림픽 개최",
                         "최저임금 상향 (6490 → 7530, 14.9%)",
@@ -53,6 +58,7 @@ const Invest = () => {
                     ]}
                 />
 
+                {/* 투자 종목 */}
                 <InvestCardContainer>
                     {stocks.map((stock) => (
                         <InvestCard
@@ -67,6 +73,7 @@ const Invest = () => {
                     ))}
                 </InvestCardContainer>
 
+                {/* 보유 종목 */}
                 <InfoCard 
                     title="보유 :" 
                     items={[
@@ -74,6 +81,12 @@ const Invest = () => {
                         "B 자동차 주식 2주를 샀어요."
                     ]}
                 />
+
+                {/* [최종 집행] & [채팅창 열기] 버튼 */}
+                <BtnContainer>
+                    <NextButton text="최종 집행" onClick={() => alert('최종 집행')} />
+                    <ChatButton text="채팅창 열기" onClick={() => alert('채팅창 열기')} />
+                </BtnContainer>
             </BodyContainer>
 
             {/* 포트폴리오 오버레이 */}
@@ -132,4 +145,14 @@ const InvestCardContainer = styled.div`
     grid-template-columns: repeat(4, 1fr);
     gap: 32px 40px;
     margin: 40px 0;
+`;
+
+const BtnContainer = styled.div`
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin: 60px 0 80px;
+    gap: 30px;
 `;
