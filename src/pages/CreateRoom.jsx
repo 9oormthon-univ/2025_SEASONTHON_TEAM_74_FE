@@ -1,22 +1,24 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import TitleHeader from '../components/TitleHeader';
 
+const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+const onlyDigits = (v) => v.replace(/[^\d]/g, '');
+
 const CreateRoom = () => {
-    // 입력 필드
-    const [hostname, setHostname] = useState("");
-    const [maxPlayers, setMaxPlayers] = useState("");
-    const [password, setPassword] = useState("");
-    
-    // 게임 코드
-    const [gameCode, setGameCode] = useState("");
-    const [copy, setCopy] = useState(false);
+    const [hostname, setHostname] = useState("");       // 방장
+    const [maxPlayers, setMaxPlayers] = useState("");   // 최대 인원(1~36명)
+    const [password, setPassword] = useState("");       // 비밀번호
+    const [gameCode, setGameCode] = useState("");       // 게임 코드
+    const [copy, setCopy] = useState(false);            // 게임 코드 복사
 
     // 게임 설정
-    const [round, setRound] = useState("");
-    const [mode, setMode] = useState("");
-    const [year, setYear] = useState("");
-    const [seed, setSeed] = useState("");
+    const [team, setTeam] = useState("");               // 팀 개수 설정(1~6)
+    const [round, setRound] = useState("");             // 라운드
+    const [mode, setMode] = useState("");               // 모드
+    const [year, setYear] = useState("");               // 연도 설정
+    const [seed, setSeed] = useState("");               // 시드머니(10,000 ~ 1,000,000)
 
     // 게임 코드 생성
     const handleCode = () => {
@@ -33,88 +35,162 @@ const CreateRoom = () => {
         }
     }
 
+    // 시드머니 콤마 표시
+    const formatMoney = (v) =>
+        v === '' ? '' : Number(v).toLocaleString('en-US');
+
+    // 숫자 입력 공통 onChange (입력 중에는 숫자만 유지)
+    const handleNumChange = (setter) => (e) => {
+        const raw = e.target.value;
+        setter(onlyDigits(raw));
+    };
+
+    // 범위 강제 onBlur
+    const handleClampOnBlur = (setter, min, max, step = 1) => (e) => {
+        const v = e.target.value === '' ? '' : Number(e.target.value);
+        if (v === '') return;
+        const clamped = clamp(v, min, max);
+        const snapped = step > 1 ? Math.round(clamped / step) * step : clamped;
+        setter(String(clamp(snapped, min, max)));
+    };
+
     return (
         <Wrapper>
             <TitleHeader title="방 만들기" />
             <BodyContainer>
                 <Heading>방을 만들어 보세요!</Heading>
 
-                {/* 입력 필드 */}
+                {/* 방장 */}
                 <InputBox>
                     <Label>방장</Label>
-                    <Input type="text" placeholder="닉네임을 입력해 주세요." />
+                    <Input 
+                        value={hostname}
+                        type="text" 
+                        placeholder="닉네임을 입력해 주세요." 
+                        onChange={(e) => setHostname(e.target.value)}
+                    />
                 </InputBox>
 
+                {/* 최대 인원 */}
                 <InputBox>
                     <Label>최대 인원</Label>
-                    <Input type="number" placeholder="1명에서 36명까지 선택할 수 있어요." />    
+                    <Input 
+                        value={maxPlayers}
+                        type="number" 
+                        placeholder="1명에서 36명까지 선택할 수 있어요." 
+                        min="1" 
+                        max="36"
+                        inputMode="numeric"
+                        onChange={handleNumChange(setMaxPlayers)}
+                        onBlur={handleClampOnBlur(setMaxPlayers, 1, 36)}
+                    />
                 </InputBox>
 
+                {/* 비밀번호 */}
                 <InputBox>
                     <Label>비밀번호</Label>
-                    <Input type="password" placeholder="비밀번호를 설정할 수 있어요. (선택)" />
+                    <Input 
+                        value={password}
+                        type="password" 
+                        placeholder="비밀번호를 설정할 수 있어요. (선택)" 
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
                 </InputBox>
 
+                {/* 게임 코드 */}
                 <InputBox>
                     <Label>게임 코드</Label>
                     <Row>
-                        <SmallBtn type="button" onClick={handleCode}>생성</SmallBtn>
+                        <CodeBtn type="button" onClick={handleCode}>생성</CodeBtn>
                         <CodeBox>{gameCode || '· · ·'}</CodeBox>
-                        <SmallBtn type="button" onClick={handleCopy} disabled={!gameCode}>
+                        <CodeBtn type="button" onClick={handleCopy} disabled={!gameCode}>
                             {copy ? '복사됨' : '복사'}
-                        </SmallBtn>
+                        </CodeBtn>
                     </Row>
                 </InputBox>
 
                 {/* 게임 설정 */}
                 <SectionTitle>게임 설정</SectionTitle>
 
+                {/* 팀 개수 설정 */}
+                <InputBox>
+                    <Label>팀 개수 설정</Label>
+                    <Input 
+                        value={team}
+                        type="number" 
+                        placeholder="최대 6팀까지 만들 수 있어요." 
+                        min="1" 
+                        max="6"
+                        inputMode="numeric"
+                        onChange={handleNumChange(setTeam)}
+                        onBlur={handleClampOnBlur(setTeam, 1, 6)}
+                    />
+                </InputBox>
+
+                {/* 라운드 */}
                 <InputBox>
                     <Label>라운드</Label>
                     <Select value={round} onChange={(e) => setRound(e.target.value)}>
-                        <option value="" disabled hidden>최대 10 라운드까지 설정할 수 있어요.</option>
-                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((r) => (
-                            <option key={r} value={r}>{r}</option>
+                        <option value="" disabled hidden>
+                            최대 10개의 라운드까지 설정할 수 있어요.
+                        </option>
+                        {[...Array(10)].map((_, i) => (
+                            <option key={i + 1} value={i + 1}>
+                                {i + 1}
+                            </option>
                         ))}
                     </Select>
                 </InputBox>
 
+                {/* 모드 */}
                 <InputBox>
                     <Label>모드</Label>
                     <Row>
-                        {['청산', '결정', '유연'].map((m) => (
-                            <SmallBtn
+                        {['청산', '유연'].map((m) => (
+                            <ModeBtn
                                 key={m}
                                 type="button"
                                 onClick={() => setMode(m)}
                                 data-active={mode === m}
                             >
                                 {m}
-                            </SmallBtn>
+                            </ModeBtn>
                         ))}
                     </Row>
                 </InputBox>
 
+                {/* 연도 설정 */}
                 <InputBox>
                     <Label>연도 설정</Label>
                     <Select value={year} onChange={(e) => setYear(e.target.value)}>
-                        <option value="" disabled hidden>게임을 진행할 연도를 설정해 주세요.</option>
+                        <option value="" disabled hidden>
+                            게임을 진행할 연도를 설정해 주세요.
+                        </option>
                         {[2000, 2005, 2010, 2015].map((y) => (
-                            <option key={y} value={y}>{y}</option>
+                            <option key={y} value={y}>
+                                {y}
+                            </option>
                         ))}
                     </Select>
                 </InputBox>
 
+                {/* 시드머니 */}
                 <InputBox>
                     <Label>시드머니</Label>
                     <Input
-                        type="number"
-                        placeholder="첫 투자 자금을 설정하세요 (0 ~ 1,000,000)"
                         value={seed}
-                        onChange={(e) => setSeed(e.target.value)}
+                        type="number"
+                        placeholder="첫 투자 자금을 설정하세요 (10,000 ~ 1,000,000)"
+                        min="10000" 
+                        max="1000000" 
+                        inputMode="numeric"
+                        step="1000" 
+                        onChange={handleNumChange(setSeed)}
+                        onBlur={handleClampOnBlur(setSeed, 10000, 1000000, 1000)}
                     />
                 </InputBox>
-
+                
+                {/* 방 만들기 버튼 */}
                 <CreateBtn>방 만들기</CreateBtn>
             </BodyContainer>
         </Wrapper>
@@ -190,8 +266,32 @@ const Row = styled.div`
     flex-wrap: wrap;
 `;
 
-const SmallBtn = styled.button`
+const CodeBtn = styled.button`
     width: 72px;
+    height: 30px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 20px;
+    color: #5E5E5E;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+
+    &:hover {
+        background-color: #E7E7E7;
+    }
+        
+    &[data-active='true'] {
+        background-color: #E0F7F4;
+        font-weight: 600;
+    }
+`;
+
+const ModeBtn = styled.button`
+    width: 120px;
     height: 30px;
     padding: 8px 16px;
     border: none;
