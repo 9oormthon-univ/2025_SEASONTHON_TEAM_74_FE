@@ -2,9 +2,19 @@ import React from 'react';
 import styled from 'styled-components';
 import TitleHeader from '../components/TitleHeader';
 import InfoCard from '../components/game/InfoCard';
+import InvestCard from '../components/game/InvestCard';
 
 const Invest = () => {
     const money = "1,000,000";
+
+    const stocks = Array.from({ length: 16 }, (_, i) => ({
+        id: i,
+        name: `A 뷰티 ${i + 1}`,
+        category: "beauty",
+        rate: -3.69,
+        price: 67417,
+        owned: 0,
+    }));
 
     return (
         <Wrapper>
@@ -14,6 +24,7 @@ const Invest = () => {
                     <Heading>투자 제한시간 3분 30초! 지금 바로 결정하세요!</Heading>
                     <Heading>팀 자산: {money}</Heading>
                 </Row>
+
                 <InfoCard 
                     title="2018 힌트 :" 
                     items={[
@@ -22,6 +33,19 @@ const Invest = () => {
                         " "
                     ]}
                 />
+
+                <InvestCardContainer>
+                    {stocks.map((stock) => (
+                        <InvestCard
+                            key={stock.id}
+                            name={stock.name}
+                            category={stock.category}
+                            rate={stock.rate}
+                            price={stock.price}
+                            owned={stock.owned}
+                        />
+                    ))}
+                </InvestCardContainer>
             </BodyContainer>
         </Wrapper>
     );
@@ -61,4 +85,14 @@ const Heading = styled.span`
     white-space: nowrap;
     margin-bottom: 0;
     cursor: default;
+`;
+
+const InvestCardContainer = styled.div`
+    width: 100%;
+    max-width: 1200px;
+    display: grid;
+    grid-template-rows: repeat(4, auto);
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px 40px;
+    margin-top: 40px;
 `;
