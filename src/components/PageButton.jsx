@@ -24,7 +24,7 @@ const Wrapper = styled(Link)`
   color: var(--color-text);
   width: 280px;
   height: 100px;
-  margin: 10px;
+  margin: 20px;
   text-decoration: none; /* 기본 밑줄 제거 */
 
   img {
