@@ -10,8 +10,22 @@ const Header = () => {
   const {user} = useAuthStore();
 
   const navigateToHome = () => {
-    navigate("/home");
+    navigate("/");
   }
+
+  const REST_API_KEY = import.meta.env.VITE_KAKAO_REST_API_KEY;
+  const REDIRECT_URI = import.meta.env.VITE_KAKAO_REDIRECT_URI;
+
+  const handleKakaoLogin = () => {
+    if (!REST_API_KEY || !REDIRECT_URI) {
+      console.error('카카오 로그인 설정이 완료되지 않았습니다. 환경 변수를 확인해주세요.');
+      alert('로그인 기능을 준비 중입니다. 잠시만 기다려주세요.');
+      return;
+    }
+    
+    const kakaoURL = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}&response_type=code`;
+    window.location.href = kakaoURL;
+  };
 
   return (
     <HeaderWrapper>
@@ -26,7 +40,7 @@ const Header = () => {
               로그인을 먼저 진행해주세요!
               <img src={right} alt="오른쪽"/>
             </LoginInfo>
-            <LogButton>
+            <LogButton onClick={handleKakaoLogin}>
               로그인 | 회원가입
             </LogButton>
           </>
