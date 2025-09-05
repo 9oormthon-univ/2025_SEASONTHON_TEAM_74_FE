@@ -2,11 +2,21 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import TitleHeader from '../components/TitleHeader';
+import axios from 'axios';
+
+const apiUrl = import.meta.env.VITE_API_URL;
+
+const MODE_MAP = { '청산': 'STANDARD', '유연': 'RELAXED' };
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 const onlyDigits = (v) => v.replace(/[^\d]/g, '');
+const nf = new Intl.NumberFormat('ko-KR');
+const formatMoney = (v) => (v === '' ? '' : nf.format(Number(v)));
+const stripDigits = (s) => s.replace(/[^\d]/g, '');
 
 const CreateRoom = () => {
+    const navigate = useNavigate();
+
     const [nickname, setNickname] = useState("");       // 방장
     const [maxMember, setMaxMember] = useState("");     // 최대 인원(1~36명)
     const [pwd, setPwd] = useState("");                 // 비밀번호
@@ -35,14 +45,23 @@ const CreateRoom = () => {
         }
     }
 
-    // 시드머니 콤마 표시
-    const formatMoney = (v) =>
-        v === '' ? '' : Number(v).toLocaleString('en-US');
-
-    // 숫자 입력 공통 onChange (입력 중에는 숫자만 유지)
+    // 숫자 입력 공통 onChange
     const handleNumChange = (setter) => (e) => {
         const raw = e.target.value;
         setter(onlyDigits(raw));
+    };
+
+    // 시드머니 콤마 표시
+    const handleMoneyChange = (e) => {
+        const raw = stripDigits(e.target.value);
+        setSeedMoney(raw);
+    };
+    const handleMoneyBlur = () => {
+        if (seedMoney === '') return;
+        const n = Number(seedMoney);
+        const clamped = Math.max(100000, Math.min(1000000, n));
+        const snapped = Math.round(clamped / 1000) * 1000;
+        setSeedMoney(String(snapped));
     };
 
     // 범위 강제 onBlur
@@ -52,6 +71,59 @@ const CreateRoom = () => {
         const clamped = clamp(v, min, max);
         const snapped = step > 1 ? Math.round(clamped / step) * step : clamped;
         setter(String(clamp(snapped, min, max)));
+    };
+
+    // 방 만들기 API
+    const handleCreate = async () => {
+        // 입력값 검증
+        if (!nickname.trim()) return alert('닉네임을 입력해 주세요.');
+        if (!maxMember) return alert('최대 인원을 설정해 주세요.');
+        if (!inviteCode) return alert('게임 코드를 생성해 주세요.');
+        if (!maxTeam) return alert('팀 개수를 설정해 주세요.');
+        if (!maxRound) return alert('라운드 수를 설정해 주세요.');
+        if (!mode) return alert('모드를 선택해 주세요.');
+        if (!yearSet) return alert('연도를 설정해 주세요.');
+        if (!seedMoney) return alert('시드머니를 설정해 주세요.');
+
+        const payload = {
+            nickname: nickname.trim(),
+            maxMember: Number(maxMember),
+            pwd: pwd.trim() || undefined,
+            inviteCode,
+            maxTeam: Number(maxTeam),
+            maxRound: Number(maxRound),
+            mode: MODE_MAP[mode],
+            yearSet: String(yearSet),
+            seedMoney: Number(seedMoney),
+        };
+
+        console.log('payload:', payload);
+
+        const raw = localStorage.getItem('userData');
+        const token = raw ? (JSON.parse(raw).accessToken || JSON.parse(raw).token || JSON.parse(raw).jwt) : null;
+        console.log('[TOKEN]', token);
+
+        try {
+            const { data } = await axios.post(`${apiUrl}/api/rooms`, payload, {
+                headers: { 
+                    'Content-Type': 'application/json',
+                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                },
+            });
+
+            if (!data?.isSuccess) {
+                throw new Error(data?.message || '방 만들기 실패');
+            }
+
+            console.log('방 만들기 완료:', data);
+
+            // for test
+            navigate('/test');
+        } catch (err) {
+            console.error(err);
+            console.error(err?.response?.data);
+            alert(err?.response?.data?.message || err.message || '방 만들기 실패');
+        }
     };
 
     return (
@@ -130,16 +202,16 @@ const CreateRoom = () => {
                 {/* 라운드 */}
                 <InputBox>
                     <Label>라운드</Label>
-                    <Select value={maxRound} onChange={(e) => setMaxRound(e.target.value)}>
-                        <option value="" disabled hidden>
-                            최대 10개의 라운드까지 설정할 수 있어요.
-                        </option>
-                        {[...Array(10)].map((_, i) => (
-                            <option key={i + 1} value={i + 1}>
-                                {i + 1}
-                            </option>
-                        ))}
-                    </Select>
+                    <Input 
+                        value={maxRound}
+                        type="number" 
+                        placeholder="최대 15개의 라운드까지 설정할 수 있어요." 
+                        min="1" 
+                        max="15"
+                        inputMode="numeric"
+                        onChange={handleNumChange(setMaxRound)}
+                        onBlur={handleClampOnBlur(setMaxRound, 1, 15)}
+                    />
                 </InputBox>
 
                 {/* 모드 */}
@@ -178,20 +250,20 @@ const CreateRoom = () => {
                 <InputBox>
                     <Label>시드머니</Label>
                     <Input
-                        value={seedMoney}
-                        type="number"
-                        placeholder="첫 투자 자금을 설정하세요 (10,000 ~ 1,000,000)"
-                        min="10000" 
+                        value={formatMoney(seedMoney)}
+                        type="text"
+                        placeholder="첫 투자 자금을 설정하세요 (100,000 ~ 1,000,000)"
+                        min="100000" 
                         max="1000000" 
                         inputMode="numeric"
                         step="1000" 
-                        onChange={handleNumChange(setSeedMoney)}
-                        onBlur={handleClampOnBlur(setSeedMoney, 10000, 1000000, 1000)}
+                        onChange={handleMoneyChange}
+                        onBlur={handleMoneyBlur}
                     />
                 </InputBox>
                 
                 {/* 방 만들기 버튼 */}
-                <CreateBtn>방 만들기</CreateBtn>
+                <CreateBtn onClick={handleCreate}>방 만들기</CreateBtn>
             </BodyContainer>
         </Wrapper>
     );
