@@ -1,14 +1,15 @@
-import styled from "styled-components";
 import Header from "../components/Header";
 import PageButton from "../components/PageButton";
 import StockCardEx from "../components/StockCardEx";
 
+import styled from "styled-components";
 import logo from "./../assets/images/logo.png";
 import createRoom from "./../assets/images/createRoom.png";
 import participate from "./../assets/images/participate.png";
 import guide from "./../assets/images/guide.png";
 
 const HomePage = () => {
+  
   return (
     <HomeContainer>
       <Header />
@@ -32,13 +33,13 @@ const HomePage = () => {
       <MainSection>
         {/* 타 페이지로 이동하는 버튼 모음 */}
         <ButtonGroup>
-          <PageButton to="/test" icon={createRoom} alt="생성">
+          <PageButton to="/create-room" icon={createRoom} alt="생성">
             방 만들기
           </PageButton>
-          <PageButton to="/test" icon={participate} alt="참여">
+          <PageButton to="/join-room" icon={participate} alt="참여">
             참가하기
           </PageButton>
-          <PageButton to="/test" icon={guide} alt="가이드">
+          <PageButton to="/game-guide" icon={guide} alt="가이드">
             게임방법
           </PageButton>
         </ButtonGroup>
@@ -66,7 +67,7 @@ const HeroSection = styled.div`
   gap: 100px;
   height: 340px;
   padding: 35px 100px;
-
+  margin: 10px 0;
   // border: 2px solid red;
 `;
 
@@ -78,21 +79,21 @@ const TitleContainer = styled.div`
 `;
 
 const MainTitle = styled.h1`
-  font-size: 64px;
+  font-size: 90px;
   font-weight: 200;
-  margin: 0;
+  margin: 30px 0;
 `;
 
 const HighlightLetter = styled.span`
   color: var(--color-secondary);
   font-weight: 600;
-  font-size: 64px;
+  font-size: 90px;
 `;
 
 const SubTitle = styled.p`
   font-size: 36px;
   font-weight: 200;
-  margin: 5px 0 0 0;
+  margin: 30px 0;
   color: var(--color-text);
 `;
 
@@ -101,6 +102,7 @@ const MainSection = styled.div`
   align-items: center;
   justify-content: center;
   gap: 50px;
+  margin: 80px 0;
 `;
 
 const ButtonGroup = styled.div`
