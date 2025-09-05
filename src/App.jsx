@@ -10,6 +10,7 @@ import GameGuide from './pages/GameGuide';
 import Lobby from './pages/Lobby';
 import TeamLobby from './pages/TeamLobby';
 import Invest from './pages/Invest';
+import Result from './pages/Result';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
       <Route path="/lobby" element={<Lobby />} />
       <Route path="/team-lobby" element={<TeamLobby />} />
       <Route path="/invest" element={<Invest />} />
+      <Route path="/result" element={<Result />} />
     </Routes>
   );
 }
