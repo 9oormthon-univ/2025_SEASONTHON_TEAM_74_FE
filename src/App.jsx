@@ -7,6 +7,8 @@ import CreateRoom from './pages/CreateRoom';
 import JoinRoom from './pages/JoinRoom';
 import StockCard from './pages/StockCard';
 import GameGuide from './pages/GameGuide';
+import Lobby from './pages/Lobby';
+import TeamLobby from './pages/TeamLobby';
 
 function App() {
   return (
@@ -19,6 +21,8 @@ function App() {
       <Route path="/join-room" element={<JoinRoom />} />
       <Route path="/stock-card" element={<StockCard />} />
       <Route path="/game-guide" element={<GameGuide />} />
+      <Route path="/lobby" element={<Lobby />} />
+      <Route path="/team-lobby" element={<TeamLobby />} />
     </Routes>
   );
 }
