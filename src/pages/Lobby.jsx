@@ -72,9 +72,23 @@ const Lobby = () => {
     try {
       setLoading(true);
 
-      const res = await axios.get(
-        `${REST_API}/api/rooms/${roomId}/lobby`
-      );
+      // JWT 토큰 가져오기
+      const raw = localStorage.getItem('userData');
+      const token = raw ? (JSON.parse(raw).accessToken || JSON.parse(raw).token || JSON.parse(raw).jwt) : null;
+      console.log('[TOKEN]', token);
+
+      // 요청 URL 확인
+      const requestUrl = `${REST_API}/api/rooms/${roomId}/lobby`;
+      console.log("🔍 API 요청 URL:", requestUrl);
+
+      const res = await axios.get(requestUrl, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      console.log("✅ API 응답 성공:", res.data);
 
       if (res.data.isSuccess) {
         setLobbyData(res.data.result);
@@ -131,9 +145,23 @@ const Lobby = () => {
   // 팀에 참가하는 함수
   // 팀장으로 참가하는지 팀원으로 참가하는지 구분하여 API 호출
   const handleJoinTeam = async(teamId, role) => {
+    // JWT 토큰 가져오기 추가
+    const raw = localStorage.getItem('userData');
+    const token = raw ? (JSON.parse(raw).accessToken || JSON.parse(raw).token || JSON.parse(raw).jwt) : null;
+
+    if (!token) {
+      console.error('JWT 토큰이 없습니다. 로그인을 먼저 해주세요.');
+      return;
+    }
+
     // role에는 "leader"인지 "member" 둘 중 하나로 넣어준다.
     try {
-      const res = await axios.patch(`${REST_API}/api/rooms/${roomId}/${teamId}/${role}`);
+      const res = await axios.patch(`${REST_API}/api/rooms/${roomId}/${teamId}/${role}`, {}, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
 
       if(res.data.isSuccess) {
         fetchLobbyData(); // 역할 부여가 성공시에는 로비 데이터 새로 부른다.
@@ -153,9 +181,23 @@ const Lobby = () => {
 
   // 팀 나가기 함수
   const handleExitRoom = async () => {
+    // JWT 토큰 가져오기 추가
+    const raw = localStorage.getItem('userData');
+    const token = raw ? (JSON.parse(raw).accessToken || JSON.parse(raw).token || JSON.parse(raw).jwt) : null;
+
+    if (!token) {
+      console.error('JWT 토큰이 없습니다. 로그인을 먼저 해주세요.');
+      return;
+    }
+
     if(window.confirm("정말로 방을 나가시겠습니까?")) {
       try {
-        const res = await axios.delete(`${REST_API}/api/rooms/${roomId}/participants/me`);
+        const res = await axios.delete(`${REST_API}/api/rooms/${roomId}/participants/me`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
 
         if(res.data.isSuccess) {
           console.log("방 나가가기에 성공하셨습니다.");

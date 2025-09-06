@@ -5,6 +5,7 @@ import TeamLobbyItem from "../components/TeamLobbyItem";
 import CountdownTimer from "../components/game/CountdownTimer";
 import TeamLobbyButtons from "../components/TeamLobbyButtons";
 import { useWebsocketStore } from "../context/Websocket";
+import { useAuthStore } from "../context/authStore";
 import axios from "axios";
 
 import styled from "styled-components";
@@ -44,19 +45,31 @@ const TeamLobby = () => {
 
   const [teamData, setTeamData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const currentUserNickname = JSON.parse(localStorage.getItem("userData") || "{}")?.nickname;
+  const { user, updateNickname } = useAuthStore();
+  const currentUserNickname = user?.nickname;
   const [isTeamConfirmed, setIsTeamConfirmed] = useState(false);
   const [isUserReady, setIsUserReady] = useState(false);
 
+  const REST_API = import.meta.env.VITE_API_URL;
+
   const leaderNickname = teamData?.leader ? Object.keys(teamData.leader)[0] : "";
+
+  // 디버깅을 위한 콘솔 로그 추가
+  console.log("현재 사용자 닉네임:", currentUserNickname);
+  console.log("팀장 닉네임:", leaderNickname);
+  console.log("팀 데이터:", teamData);
 
   // 현재 사용자의 역할(leader 또는 member)
   const role = currentUserNickname === leaderNickname ? "leader" : "member";
+
+  console.log("현재 역할:", role);
 
   // 게임까지 몇초가 남았는지
   const second = 3;
 
   useEffect(() => {
+    fetchTeamData(); // 먼저 초기 데이터 로드(웹소켓 연결 전)
+
     connect();
 
     const topic = `/topic/room/${roomId}/team/${teamId}`;
@@ -80,6 +93,40 @@ const TeamLobby = () => {
 
   }, [roomId, teamId, connect, disconnect, subscribeToTeamLobby, unsubscribeFromTopic]);
 
+
+  // 팀 데이터 로드 함수
+  const fetchTeamData = async () => {
+    try {
+      setIsLoading(true);
+
+      const raw = localStorage.getItem('userData');
+      const token = raw ? (JSON.parse(raw).accessToken || JSON.parse(raw).token || JSON.parse(raw).jwt) : null;
+
+      if (!token) {
+        console.error('JWT 토큰이 없습니다. 로그인을 먼저 해주세요.');
+        return;
+      }
+      
+      const res = await axios.get(`${REST_API}/api/rooms/${roomId}/${teamId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if(res.data.isSuccess) {
+        setTeamData(res.data.result);
+        setIsLoading(false);
+      }
+      else {
+        console.log("팀 데이터 로드 실패:", res.data.message);
+      }
+    }
+    catch(err) {
+      console.error("팀 데이터 로드 오류: ", err);
+    }
+  };
+
   const handleQuestion = () => {
     navigate("/rule");
   };
@@ -87,7 +134,21 @@ const TeamLobby = () => {
   const handleExitRoom = async () => {
     // 팀 나가기 api 연동
     try {
-      const res = await axios.delete(`/api/rooms/${roomId}/${teamId}/me`);
+      // JWT 토큰 가져오기
+      const raw = localStorage.getItem('userData');
+      const token = raw ? (JSON.parse(raw).accessToken || JSON.parse(raw).token || JSON.parse(raw).jwt) : null;
+
+      if (!token) {
+        console.error('JWT 토큰이 없습니다.');
+        return;
+      }
+
+      const res = await axios.delete(`${REST_API}/api/rooms/${roomId}/${teamId}/me`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
 
       if(res.data.isSuccess) {
         console.log("팀 나가가기에 성공하셨습니다.");
@@ -104,7 +165,21 @@ const TeamLobby = () => {
 
   const handleReady = async() => {
     try {
-      const res = await axios.patch(`/api/rooms/${roomId}/me/ready`);
+      // JWT 토큰 가져오기
+      const raw = localStorage.getItem('userData');
+      const token = raw ? (JSON.parse(raw).accessToken || JSON.parse(raw).token || JSON.parse(raw).jwt) : null;
+
+      if (!token) {
+        console.error('JWT 토큰이 없습니다.');
+        return;
+      }
+
+      const res = await axios.patch(`${REST_API}/api/rooms/${roomId}/me/ready`, {}, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
 
       if(res.data.isSuccess) {
         console.log("준비 상태가 되셨습니다.");
@@ -120,13 +195,27 @@ const TeamLobby = () => {
   }
 
   // 모든 팀원이 준비되었는지 확인하는 로직
-  const isAllMembersReady = teamData?.members?.every(member => Object.values(member)[0] === true);
+  const isAllMembersReady = teamData?.members?.every(member => Object.values(member)[0] === true) || false;
 
   const handleConfirmTeam = async () => {
     if(isAllMembersReady) {
       // 팀 확정하기 api 연동
       try {
-        const res = await axios.patch(`/api/rooms/${roomId}/${teamId}/confirm`);
+        // JWT 토큰 가져오기
+        const raw = localStorage.getItem('userData');
+        const token = raw ? (JSON.parse(raw).accessToken || JSON.parse(raw).token || JSON.parse(raw).jwt) : null;
+
+        if (!token) {
+          console.error('JWT 토큰이 없습니다.');
+          return;
+        }
+
+        const res = await axios.patch(`/api/rooms/${roomId}/${teamId}/confirm`, {}, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
 
         if(res.data.isSuccess) {
           console.log("팀 확정이 되셨습니다.");
@@ -156,6 +245,8 @@ const TeamLobby = () => {
 
   // 팀장 이름 변경 핸들러
   const handleLeaderNameChange = (newLeaderName) => {
+    updateNickname(newLeaderName);
+
     setTeamData(prev => ({
       ...prev,
       leader: {
@@ -166,10 +257,19 @@ const TeamLobby = () => {
 
   const handleMemberNameChange = (memberIndex, newMemberName) => {
     console.log("handleMemberNameChange 함수 호출!");
+    
+    // 현재 사용자가 자신의 이름을 변경하는 경우에만 updateNickname 호출
+    const currentMember = teamData?.members?.[memberIndex];
+    const currentMemberNickname = currentMember ? Object.keys(currentMember)[0] : "";
+    
+    if (currentMemberNickname === currentUserNickname) {
+      updateNickname(newMemberName);
+    }
+    
     setTeamData(prev => ({
       ...prev,
-      members: prev.members.map((member, index) => 
-        index === memberIndex ? { [newMemberName]: Object.values(member)[0] } : member),
+      members: prev?.members?.map((member, index) => 
+        index === memberIndex ? { [newMemberName]: Object.values(member)[0] } : member) || [],
     }));
   };
 
@@ -183,6 +283,18 @@ const TeamLobby = () => {
       return isUserReady && itemType === "member";
     }
   };
+
+  // 로딩 중이거나 teamData가 없으면 로딩 표시
+  if (isLoading || !teamData) {
+    return (
+      <TeamLobbyContainer>
+        <Header />
+        <div style={{ textAlign: 'center', marginTop: '50px' }}>
+          <MainTitle>로딩 중...</MainTitle>
+        </div>
+      </TeamLobbyContainer>
+    );
+  }
 
   return(
     <TeamLobbyContainer>
@@ -203,7 +315,7 @@ const TeamLobby = () => {
         {/* 팀명 입력 */}
         <TeamLobbyItem 
           title="팀명"
-          content={teamData?.teamName || `팀명을 변경하지 않으시면 자동으로 ${teamData.teamName}로 지정이 됩니다.`}
+          content={teamData?.teamName || `팀명을 변경하지 않으시면 자동으로 ${teamData?.teamName}로 지정이 됩니다.`}
           isEditable={role === "leader"}
           isDisabled={isInputDisabled("team")}
           onContentChange={handleTeamNameChange}
@@ -220,7 +332,7 @@ const TeamLobby = () => {
         />
 
         { /* 팀원 */ }
-        {teamData.members.map((member, index) =>{
+        {teamData?.members?.map((member, index) =>{
           const memberNickname = Object.keys(member)[0];
           const memberIsReady = Object.values(member)[0];
           const isCurrentMember = memberNickname === currentUserNickname;
@@ -239,10 +351,10 @@ const TeamLobby = () => {
         })}
 
         { /* 빈 팀원 슬롯들( 최대 5개 ) */ }
-        {Array.from({length: 5 - teamData.members.length}).map((_, index) => (
+        {Array.from({length: 5 - (teamData?.members?.length || 0)}).map((_, index) => (
           <TeamLobbyItem 
-            key={`member-${index}`}
-            title={`팀원${teamData.members.length + index + 1}`}
+            key={`empty-member-${index}`}
+            title={`팀원${(teamData?.members?.length || 0) + index + 1}`}
             content=""
             isReady={false}
             isLeader={false}
@@ -269,7 +381,7 @@ const TeamLobby = () => {
         />
       )}
 
-      <CountdownTimer second={second} />
+      {/* <CountdownTimer second={second} /> */}
     </TeamLobbyContainer>
 
     
