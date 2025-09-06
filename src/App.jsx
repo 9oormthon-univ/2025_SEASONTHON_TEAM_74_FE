@@ -13,6 +13,7 @@ import Invest from './pages/Invest';
 import Rule from './pages/Rule';
 import Result from './pages/Result';
 
+
 function App() {
   return (
     <Routes>
