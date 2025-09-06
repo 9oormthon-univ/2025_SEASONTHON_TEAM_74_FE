@@ -9,6 +9,7 @@ import StockCard from './pages/StockCard';
 import GameGuide from './pages/GameGuide';
 import Lobby from './pages/Lobby';
 import TeamLobby from './pages/TeamLobby';
+import Rule from './pages/Rule';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
       <Route path="/game-guide" element={<GameGuide />} />
       <Route path="/lobby" element={<Lobby />} />
       <Route path="/team-lobby" element={<TeamLobby />} />
+      <Route path="/rule" element={<Rule />} />
     </Routes>
   );
 }
