@@ -51,8 +51,8 @@ const pulseAnimation = keyframes`
 
 const CardContainer = styled.div`
   position: relative;
-  width: 800px;
-  height: 720px;
+  width: 600px;
+  height: 540px;
   // border: 2px solid red;
 
   &:hover {
@@ -64,16 +64,16 @@ const Card = styled.div`
   display: flex;
   flex-direction: column;
   position: absolute;
-  width: 500px;
-  height: 500px;
-  border-radius: 20px;
-  box-shadow: 1px 10px 20px rgba(0, 0, 0, 0.2);
+  width: 375px;
+  height: 375px;
+  border-radius: 15px;
+  box-shadow: 1px 8px 16px rgba(0, 0, 0, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
 
   &.card1 {
-    bottom: 60px;
+    bottom: 45px;
     right: 0;
     z-index: 3;
     transform: rotate(-3.5deg);
@@ -81,13 +81,13 @@ const Card = styled.div`
     
     &:hover {
       transform: rotate(-3.5deg) scale(1.05);
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
       animation: ${floatAnimation} 2s ease-in-out infinite;
     }
   }
 
   &.card2 {
-    top: 0;
+    top: 20px;
     left: 0;
     z-index: 2;
     transform: rotate(3.5deg);
@@ -95,7 +95,7 @@ const Card = styled.div`
     
     &:hover {
       transform: rotate(3.5deg) scale(1.05);
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
       animation: ${floatAnimation} 2s ease-in-out infinite;
     }
   }
@@ -118,7 +118,7 @@ const HoverOverlay = styled.div`
   background: linear-gradient(135deg, rgba(0, 128, 111, 0.1) 0%, rgba(0, 128, 111, 0.05) 100%);
   opacity: 0;
   transition: opacity 0.3s ease;
-  border-radius: 20px;
+  border-radius: 15px;
 
   ${Card}:hover & {
     opacity: 1;
@@ -130,23 +130,23 @@ const CardInfo = styled.div`
   position: absolute;
   bottom: 0;
   right: 0;
-  font-size: 26px;
+  font-size: 20px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 
 `;
 
 const CardTitle = styled.div`
   color: #00806F;
   font-weight: 500;
-  font-size: 50px;
-  margin: 20px;
+  font-size: 36px;
+  margin: 15px;
 `;
 
 const CardSubTitle = styled.div`
   color: #00806F;
   font-weight: 300;
-  font-size: 20px;
-  margin: 20px;
+  font-size: 16px;
+  margin: 15px;
 `;
