@@ -86,8 +86,8 @@ const CreateRoom = () => {
     const handleCode = async () => {
         setCopy(false);
 
-        const raw = localStorage.getItem('userData');
-        const token = raw ? (JSON.parse(raw).accessToken || JSON.parse(raw).token || JSON.parse(raw).jwt) : null;
+        const { user } = useAuthStore.getState();
+        const token = user?.accessToken || user?.token || user?.jwt;
         console.log('[TOKEN]', token);
 
         try {
@@ -135,8 +135,8 @@ const CreateRoom = () => {
 
         console.log('payload:', payload);
 
-        const raw = localStorage.getItem('userData');
-        const token = raw ? (JSON.parse(raw).accessToken || JSON.parse(raw).token || JSON.parse(raw).jwt) : null;
+        const { user } = useAuthStore.getState();
+        const token = user?.accessToken || user?.token || user?.jwt;
         console.log('[TOKEN]', token);
 
         try {
