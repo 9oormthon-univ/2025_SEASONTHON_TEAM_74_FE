@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import TitleHeader from '../components/TitleHeader';
 import axios from 'axios';
-
+// lobby/{roomId}
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const MODE_MAP = { '청산': 'STANDARD', '유연': 'RELAXED' };
@@ -89,7 +89,7 @@ const CreateRoom = () => {
             setInviteCode(data.result.code);
         } catch (err) {
             console.error(err);
-                alert(err?.response?.data?.message || err.message || '게임 코드 생성 실패');
+            alert(err?.response?.data?.message || err.message || '게임 코드 생성 실패');
         }
     };
 
@@ -137,10 +137,9 @@ const CreateRoom = () => {
 
             console.log('방 만들기 완료:', data);
 
-            // for test
-            navigate('/lobby');
+            const roomId = data.result.roomId;
+            navigate(`/lobby/${roomId}`);
         } catch (err) {
-            console.log('방 만들기:', data);
             console.error(err);
             console.error(err?.response?.data);
             alert(err?.response?.data?.message || err.message || '방 만들기 실패');
