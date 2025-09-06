@@ -31,30 +31,59 @@ const Wrapper = styled.div`
   align-items: center;
   justify-content: center;
   gap: 10px;
+  cursor: pointer;
 
   background-color: var(--color-background);
   border: 6px solid var(--color-secondary);
   border-radius: 40px; 
   color: var(--color-text);
-  width: 280px;
-  height: 100px;
-  margin: 20px;
+  width: 240px;
+  height: 80px;
+  margin: 15px 15px 15px 0;
   text-decoration: none; /* 기본 밑줄 제거 */
+  
+  transition: all 0.3s ease;
+  animation: slideInFromRight 0.8s ease-out;
+  
+  @keyframes slideInFromRight {
+    from {
+      opacity: 0;
+      transform: translateX(50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
 
   img {
-    width: 35px;
+    width: 30px;
+    transition: transform 0.3s ease;
   }
 
   span {
-    font-size: 40px;
+    font-size: 32px;
     color: var(--color-text);
+    transition: all 0.3s ease;
   }
 
   &:hover {
     background-color: var(--color-secondary);
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+
+    img {
+      transform: scale(1.1) rotate(5deg);
+    }
 
     span {
       color: var(--color-background);
+      transform: scale(1.05);
     }
+  }
+  
+  &:active {
+    transform: translateY(-2px) scale(1.02);
+    transition: all 0.1s ease;
   }
 `;

@@ -21,7 +21,7 @@ export default TitleHeader;
 
 const Wrapper = styled.div`
     height: 52px;
-    padding: 12px 48px;
+    padding: 8px 48px;
     display: flex;
     justify-content: space-between;
     align-items: center;

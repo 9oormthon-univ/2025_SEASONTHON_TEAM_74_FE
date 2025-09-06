@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import TitleHeader from '../components/TitleHeader';
 import axios from 'axios';
+
 import { useAuthStore } from '../context/authStore';
-// lobby/{roomId}
+
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const MODE_MAP = { '청산': 'STANDARD', '유연': 'RELAXED' };
@@ -44,6 +45,19 @@ const CreateRoom = () => {
     const handleNumChange = (setter) => (e) => {
         const raw = e.target.value;
         setter(onlyDigits(raw));
+    };
+
+    // + - 버튼 핸들러
+    const handleIncrement = (setter, currentValue, max, step = 1) => () => {
+        const current = currentValue === '' ? 0 : Number(currentValue);
+        const newValue = Math.min(current + step, max);
+        setter(String(newValue));
+    };
+
+    const handleDecrement = (setter, currentValue, min, step = 1) => () => {
+        const current = currentValue === '' ? 0 : Number(currentValue);
+        const newValue = Math.max(current - step, min);
+        setter(String(newValue));
     };
 
     // 시드머니 콤마 표시
@@ -171,16 +185,30 @@ const CreateRoom = () => {
                 {/* 최대 인원 */}
                 <InputBox>
                     <Label>최대 인원</Label>
-                    <Input 
-                        value={maxMember}
-                        type="number" 
-                        placeholder="1명에서 36명까지 선택할 수 있어요." 
-                        min="1" 
-                        max="36"
-                        inputMode="numeric"
-                        onChange={handleNumChange(setMaxMember)}
-                        onBlur={handleClampOnBlur(setMaxMember, 1, 36)}
-                    />
+                    <NumberInputContainer>
+                        <DecreaseBtn 
+                            onClick={handleDecrement(setMaxMember, maxMember, 1)}
+                            disabled={maxMember === '' || Number(maxMember) <= 1}
+                        >
+                            −
+                        </DecreaseBtn>
+                        <NumberInput 
+                            value={maxMember}
+                            type="number" 
+                            placeholder="1명에서 36명까지 선택할 수 있어요." 
+                            min="1" 
+                            max="36"
+                            inputMode="numeric"
+                            onChange={handleNumChange(setMaxMember)}
+                            onBlur={handleClampOnBlur(setMaxMember, 1, 36)}
+                        />
+                        <IncreaseBtn 
+                            onClick={handleIncrement(setMaxMember, maxMember, 36)}
+                            disabled={maxMember === '' || Number(maxMember) >= 36}
+                        >
+                            +
+                        </IncreaseBtn>
+                    </NumberInputContainer>
                 </InputBox>
 
                 {/* 비밀번호 */}
@@ -212,31 +240,59 @@ const CreateRoom = () => {
                 {/* 팀 개수 설정 */}
                 <InputBox>
                     <Label>팀 개수 설정</Label>
-                    <Input 
-                        value={maxTeam}
-                        type="number" 
-                        placeholder="최대 6팀까지 만들 수 있어요." 
-                        min="1" 
-                        max="6"
-                        inputMode="numeric"
-                        onChange={handleNumChange(setMaxTeam)}
-                        onBlur={handleClampOnBlur(setMaxTeam, 1, 6)}
-                    />
+                    <NumberInputContainer>
+                        <DecreaseBtn 
+                            onClick={handleDecrement(setMaxTeam, maxTeam, 1)}
+                            disabled={maxTeam === '' || Number(maxTeam) <= 1}
+                        >
+                            −
+                        </DecreaseBtn>
+                        <NumberInput 
+                            value={maxTeam}
+                            type="number" 
+                            placeholder="최대 6팀까지 만들 수 있어요." 
+                            min="1" 
+                            max="6"
+                            inputMode="numeric"
+                            onChange={handleNumChange(setMaxTeam)}
+                            onBlur={handleClampOnBlur(setMaxTeam, 1, 6)}
+                        />
+                        <IncreaseBtn 
+                            onClick={handleIncrement(setMaxTeam, maxTeam, 6)}
+                            disabled={maxTeam === '' || Number(maxTeam) >= 6}
+                        >
+                            +
+                        </IncreaseBtn>
+                    </NumberInputContainer>
                 </InputBox>
 
                 {/* 라운드 */}
                 <InputBox>
                     <Label>라운드</Label>
-                    <Input 
-                        value={maxRound}
-                        type="number" 
-                        placeholder="최대 15개의 라운드까지 설정할 수 있어요." 
-                        min="1" 
-                        max="15"
-                        inputMode="numeric"
-                        onChange={handleNumChange(setMaxRound)}
-                        onBlur={handleClampOnBlur(setMaxRound, 1, 15)}
-                    />
+                    <NumberInputContainer>
+                        <DecreaseBtn 
+                            onClick={handleDecrement(setMaxRound, maxRound, 1)}
+                            disabled={maxRound === '' || Number(maxRound) <= 1}
+                        >
+                            −
+                        </DecreaseBtn>
+                        <NumberInput 
+                            value={maxRound}
+                            type="number" 
+                            placeholder="최대 15개의 라운드까지 설정할 수 있어요." 
+                            min="1" 
+                            max="15"
+                            inputMode="numeric"
+                            onChange={handleNumChange(setMaxRound)}
+                            onBlur={handleClampOnBlur(setMaxRound, 1, 15)}
+                        />
+                        <IncreaseBtn 
+                            onClick={handleIncrement(setMaxRound, maxRound, 15)}
+                            disabled={maxRound === '' || Number(maxRound) >= 15}
+                        >
+                            +
+                        </IncreaseBtn>
+                    </NumberInputContainer>
                 </InputBox>
 
                 {/* 모드 */}
@@ -259,33 +315,61 @@ const CreateRoom = () => {
                 {/* 연도 설정 */}
                 <InputBox>
                     <Label>연도 설정</Label>
-                    <Input 
-                        value={yearSet}
-                        type="number" 
-                        placeholder="게임을 진행할 연도를 설정해 주세요. (2000 ~ 2014)" 
-                        min="2000" 
-                        max="2014"
-                        inputMode="numeric"
-                        step="1"
-                        onChange={handleNumChange(setYearSet)}
-                        onBlur={handleClampOnBlur(setYearSet, 2000, 2014)}
-                    />
+                    <NumberInputContainer>
+                        <DecreaseBtn 
+                            onClick={handleDecrement(setYearSet, yearSet, 2000)}
+                            disabled={yearSet === '' || Number(yearSet) <= 2000}
+                        >
+                            −
+                        </DecreaseBtn>
+                        <NumberInput 
+                            value={yearSet}
+                            type="number" 
+                            placeholder="게임 시작 연도를 설정해 주세요. (2000 ~ 2014)" 
+                            min="2000" 
+                            max="2014"
+                            inputMode="numeric"
+                            step="1"
+                            onChange={handleNumChange(setYearSet)}
+                            onBlur={handleClampOnBlur(setYearSet, 2000, 2014)}
+                        />
+                        <IncreaseBtn 
+                            onClick={handleIncrement(setYearSet, yearSet, 2014)}
+                            disabled={yearSet === '' || Number(yearSet) >= 2014}
+                        >
+                            +
+                        </IncreaseBtn>
+                    </NumberInputContainer>
                 </InputBox>
 
                 {/* 시드머니 */}
                 <InputBox>
                     <Label>시드머니</Label>
-                    <Input
-                        value={formatMoney(seedMoney)}
-                        type="text"
-                        placeholder="첫 투자 자금을 설정하세요 (100,000 ~ 1,000,000)"
-                        min="100000" 
-                        max="1000000" 
-                        inputMode="numeric"
-                        step="1000" 
-                        onChange={handleMoneyChange}
-                        onBlur={handleMoneyBlur}
-                    />
+                    <NumberInputContainer>
+                        <DecreaseBtn 
+                            onClick={handleDecrement(setSeedMoney, seedMoney, 100000, 1000)}
+                            disabled={seedMoney === '' || Number(seedMoney) <= 100000}
+                        >
+                            −
+                        </DecreaseBtn>
+                        <NumberInput
+                            value={formatMoney(seedMoney)}
+                            type="text"
+                            placeholder="첫 투자 자금을 설정하세요. (100,000 ~ 1,000,000)"
+                            min="100000" 
+                            max="1000000" 
+                            inputMode="numeric"
+                            step="1000" 
+                            onChange={handleMoneyChange}
+                            onBlur={handleMoneyBlur}
+                        />
+                        <IncreaseBtn 
+                            onClick={handleIncrement(setSeedMoney, seedMoney, 1000000, 1000)}
+                            disabled={seedMoney === '' || Number(seedMoney) >= 1000000}
+                        >
+                            +
+                        </IncreaseBtn>
+                    </NumberInputContainer>
                 </InputBox>
                 
                 {/* 방 만들기 버튼 */}
@@ -349,11 +433,41 @@ const Input = styled.input`
     justify-content: center;
     border: none;
     outline: none;
-    font-size: 16px;
+    font-size: 17px;
     background-color: transparent;
 
     &::placeholder {
         color: #A6A6A6;
+    }
+`;
+
+const NumberInput = styled.input`
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    outline: none;
+    font-size: 17px;
+    font-weight: 500;
+    text-align: center;
+    background-color: transparent;
+
+    /* 숫자 input의 기본 화살표 제거 */
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Firefox에서 숫자 input의 기본 화살표 제거 */
+    &[type=number] {
+        -moz-appearance: textfield;
+    }
+
+    &::placeholder {
+        color: #A6A6A6;
+        font-weight: 400;
     }
 `;
 
@@ -482,5 +596,66 @@ const CreateBtn = styled.button`
 
     &:hover {
         background-color: #C8EBE3;
+    }
+`;
+
+const NumberInputContainer = styled.div`
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+`;
+
+const IncreaseBtn = styled.button`
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    background-color: #E0F7F4;
+    color: #00C2A8;
+    font-size: 18px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover:not(:disabled) {
+        background-color: #C8EBE3;
+        transform: scale(1.05);
+    }
+
+    &:disabled {
+        background-color: #F5F5F5;
+        color: #A6A6A6;
+        cursor: not-allowed;
+    }
+`;
+
+const DecreaseBtn = styled.button`
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    background-color: #E0F7F4;
+    color: #00C2A8;
+    font-size: 18px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover:not(:disabled) {
+        background-color: #C8EBE3;
+        transform: scale(1.05);
+    }
+
+    &:disabled {
+        background-color: #F5F5F5;
+        color: #A6A6A6;
+        cursor: not-allowed;
     }
 `;
