@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import TitleHeader from '../components/TitleHeader';
+import { useAuthStore } from '../context/authStore';
 import axios from 'axios';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const JoinRoom = () => {
     const navigate = useNavigate();
+    const { updateNickname } = useAuthStore(); 
 
     const [nickname, setNickname] = useState("");
     const [inviteCode, setInviteCode] = useState("");
@@ -44,6 +46,10 @@ const JoinRoom = () => {
 
             console.log('방 참가하기 완료:', data);
             
+            if(nickname.trim()) {
+                updateNickname(nickname.trim());
+            }
+
             const roomId = data.result.roomId;
             navigate(`/lobby/${roomId}`);
         } catch (err) {

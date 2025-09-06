@@ -4,6 +4,8 @@ import styled from 'styled-components';
 import TitleHeader from '../components/TitleHeader';
 import axios from 'axios';
 
+import { useAuthStore } from '../context/authStore';
+
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const MODE_MAP = { '청산': 'STANDARD', '유연': 'RELAXED' };
@@ -16,6 +18,7 @@ const stripDigits = (s) => s.replace(/[^\d]/g, '');
 
 const CreateRoom = () => {
     const navigate = useNavigate();
+    const { updateNickname } = useAuthStore();
 
     const [nickname, setNickname] = useState("");       // 방장
     const [maxMember, setMaxMember] = useState("");     // 최대 인원(1~36명)
@@ -149,6 +152,9 @@ const CreateRoom = () => {
             }
 
             console.log('방 만들기 완료:', data);
+
+            // 방 생성 성공 후 Zustand store 업데이트
+            updateNickname(nickname.trim());
 
             const roomId = data.result.roomId;
             navigate(`/lobby/${roomId}`);

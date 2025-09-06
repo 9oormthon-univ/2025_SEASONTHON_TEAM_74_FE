@@ -20,4 +20,12 @@ export const useAuthStore = create((set) => ({
     }
   },
 
+  updateNickname: (newNickname) => {
+    set((state) => {
+      const updatedUser = { ...state.user, nickname: newNickname };
+      localStorage.setItem("userData", JSON.stringify(updatedUser));
+      return { user: updatedUser };
+    });
+  },
+
 }));

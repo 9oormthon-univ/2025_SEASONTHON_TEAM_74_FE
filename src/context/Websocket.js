@@ -16,15 +16,29 @@ export const useWebsocketStore = create((set, get) => ({
       disconnect();
     }
 
+    // JWT 토큰 가져오기
+    const raw = localStorage.getItem('userData');
+    const token = raw ? (JSON.parse(raw).accessToken || JSON.parse(raw).token || JSON.parse(raw).jwt) : null;
+
+    // 토큰이 없으면 연결하지 않음
+    if (!token) {
+      console.error('JWT 토큰이 없습니다. 로그인을 먼저 해주세요.');
+      return;
+    }
+
     // 1. 소켓 객체 생성
     // 전송 계층(실제 네트워크 연결/해제)
-    const socket = new SockJS(`${import.meta.env.VITE_API_URL}`);
+    const socket = new SockJS(`${import.meta.env.VITE_API_URL}/ws-stock`);
     
     // 2. STOMP 클라이언트 설정
     // 소켓 위에서 메시징 규칙을 정의
     // 메시징 프로토콜(토픽, 구독, 발행)
     const stompClient = new Client({
       webSocketFactory: () => socket, // stomp 클라이언트에게 어떤 소켓을 사용할 것인지 알려줌
+      connectHeaders: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
       debug: (str) => {
         console.log('STOMP Debug:', str);
       },
@@ -73,7 +87,18 @@ export const useWebsocketStore = create((set, get) => ({
     const { client, subscriptions } = get();
     const topic = `/topic/room/${roomId}/lobby`;
     
+    // JWT 토큰 가져오기
+    const raw = localStorage.getItem('userData');
+    const token = raw ? (JSON.parse(raw).accessToken || JSON.parse(raw).token || JSON.parse(raw).jwt) : null;
+
+    if (!token) {
+      console.error('JWT 토큰이 없습니다. 로그인을 먼저 해주세요.');
+      return;
+    }
+
     if (client && client.connected) {
+      console.log('🔔 로비 토픽 구독 시작:', topic); // 구독 시작 로그
+
       const subscription = client.subscribe(topic, (message) => {
         try {
           const data = JSON.parse(message.body);
@@ -82,6 +107,9 @@ export const useWebsocketStore = create((set, get) => ({
         } catch (error) {
           console.error('로비 데이터 파싱 에러:', error);
         }
+      }, {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
       });
       
       subscriptions.set(topic, subscription);
@@ -93,6 +121,10 @@ export const useWebsocketStore = create((set, get) => ({
     const { client, subscriptions } = get();
     const topic = `/topic/room/${roomId}/team/${teamId}`;
     
+    // JWT 토큰 가져오기
+    const raw = localStorage.getItem('userData');
+    const token = raw ? (JSON.parse(raw).accessToken || JSON.parse(raw).token || JSON.parse(raw).jwt) : null;
+
     if (client && client.connected) {
       const subscription = client.subscribe(topic, (message) => {
         try {
@@ -102,6 +134,9 @@ export const useWebsocketStore = create((set, get) => ({
         } catch (error) {
           console.error('팀 로비 데이터 파싱 에러:', error);
         }
+      }, {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
       });
       
       subscriptions.set(topic, subscription);
@@ -123,12 +158,26 @@ export const useWebsocketStore = create((set, get) => ({
   sendMessage: (destination, body) => {
     const { client } = get();
     
+    // JWT 토큰 가져오기
+    const raw = localStorage.getItem('userData');
+    const token = raw ? (JSON.parse(raw).accessToken || JSON.parse(raw).token || JSON.parse(raw).jwt) : null;
+
+    if (!token) {
+      console.error('JWT 토큰이 없습니다. 로그인을 먼저 해주세요.');
+      return;
+    }
+
     if (client && client.connected) {
       client.publish({
-        destination,
-        body: JSON.stringify(body)
+        destination: `/publish${destination}`, 
+        body: JSON.stringify(body),
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
-    } else {
+    } 
+    else {
       console.error('WebSocket이 연결되지 않았습니다.');
     }
   }
