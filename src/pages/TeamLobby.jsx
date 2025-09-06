@@ -2,7 +2,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Header from "../components/Header";
 import TeamLobbyItem from "../components/TeamLobbyItem";
-import CountdownTimer from "../components/game/CountdownTimer";
 import TeamLobbyButtons from "../components/TeamLobbyButtons";
 import { useWebsocketStore } from "../context/Websocket";
 import { useAuthStore } from "../context/authStore";
@@ -42,6 +41,9 @@ const TeamLobby = () => {
   const { roomId, teamId } = useParams();
 
   const { connect, disconnect, subscribeToTeamLobby, unsubscribeFromTopic, sendMessage, isConnected } = useWebsocketStore();
+  
+  // 웹소켓 연결 상태 디버깅
+  console.log('🔍 TeamLobby - isConnected:', isConnected);
 
   const [teamData, setTeamData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -58,6 +60,7 @@ const TeamLobby = () => {
   console.log("현재 사용자 닉네임:", currentUserNickname);
   console.log("팀장 닉네임:", leaderNickname);
   console.log("팀 데이터:", teamData);
+  console.log("로딩 상태:", isLoading);
 
   // 현재 사용자의 역할(leader 또는 member)
   const role = currentUserNickname === leaderNickname ? "leader" : "member";
@@ -68,31 +71,65 @@ const TeamLobby = () => {
   const second = 3;
 
   useEffect(() => {
-    fetchTeamData(); // 먼저 초기 데이터 로드(웹소켓 연결 전)
+    const initializeTeamLobby = async () => {
+      // 먼저 초기 데이터 로드
+      await fetchTeamData();
+      
+      // 웹소켓 연결
+      connect();
+      
+      // 연결이 완료된 후 구독 (약간의 지연을 두고)
+      setTimeout(() => {
+        console.log('🚀 팀 로비 구독 시도 중...', { roomId, teamId });
+        subscribeToTeamLobby(roomId, teamId, (data) => {
+          console.log("📨 팀 로비 데이터 수신:", data);
+          console.log("📨 데이터 타입:", typeof data);
+          console.log("📨 데이터 구조:", JSON.stringify(data, null, 2));
 
-    connect();
+          // 팀 데이터 업데이트 - 서버에서 직접 팀 데이터를 보내는 경우
+          if(data && data.teamId && data.teamName) {
+            console.log("✅ 팀 데이터 업데이트 중 (직접 데이터):", data);
+            setTeamData(data);
+            setIsLoading(false);
+          }
+          // 기존 API 응답 형태인 경우
+          else if(data && data.isSuccess && data.result) {
+            console.log("✅ 팀 데이터 업데이트 중 (API 응답):", data.result);
+            setTeamData(data.result);
+            setIsLoading(false);
+          }
+          // result만 있는 경우
+          else if(data && data.result) {
+            console.log("✅ 팀 데이터 업데이트 중 (result만 있음):", data.result);
+            setTeamData(data.result);
+            setIsLoading(false);
+          }
+          else {
+            console.log("❌ 팀 로비 데이터 수신 실패:", data);
+          }
+        });
+      }, 1000);
+    };
 
-    const topic = `/topic/room/${roomId}/team/${teamId}`;
-    subscribeToTeamLobby(roomId, teamId, (data) => {
-      console.log("팀 로비 데이터 수신:", data);
-
-      // 팀 데이터 업데이트
-      if(data.isSuccess && data.result) {
-        setTeamData(data.result);
-        setIsLoading(false);
-      }
-      else {
-        console.log("팀 로비 데이터 수신 실패:", data.message);
-      }
-    });
+    initializeTeamLobby();
 
     return () => {
       // 팀 로비 토픽 구독 해제
+      const topic = `/topic/room/${roomId}/team/${teamId}`;
       unsubscribeFromTopic(topic);
     };
 
-  }, [roomId, teamId, connect, disconnect, subscribeToTeamLobby, unsubscribeFromTopic]);
+  }, [roomId, teamId]);
 
+  // 웹소켓 연결 상태 변화 모니터링
+  useEffect(() => {
+    console.log('🔍 웹소켓 연결 상태 변화:', isConnected);
+    if (isConnected) {
+      console.log('✅ 웹소켓이 연결되었습니다. 팀 로비 구독을 시도합니다.');
+    } else {
+      console.log('❌ 웹소켓이 연결되지 않았습니다.');
+    }
+  }, [isConnected]);
 
   // 팀 데이터 로드 함수
   const fetchTeamData = async () => {
@@ -130,6 +167,36 @@ const TeamLobby = () => {
   const handleQuestion = () => {
     navigate("/rule");
   };
+
+  // 디버깅용: 수동으로 구독 재시도
+  // const handleRetrySubscription = () => {
+  //   console.log('🔄 수동 구독 재시도');
+  //   subscribeToTeamLobby(roomId, teamId, (data) => {
+  //     console.log("📨 수동 재시도 - 팀 로비 데이터 수신:", data);
+      
+  //     // 팀 데이터 업데이트 - 서버에서 직접 팀 데이터를 보내는 경우
+  //     if(data && data.teamId && data.teamName) {
+  //       console.log("✅ 수동 재시도 - 팀 데이터 업데이트 중 (직접 데이터):", data);
+  //       setTeamData(data);
+  //       setIsLoading(false);
+  //     }
+  //     // 기존 API 응답 형태인 경우
+  //     else if(data && data.isSuccess && data.result) {
+  //       console.log("✅ 수동 재시도 - 팀 데이터 업데이트 중 (API 응답):", data.result);
+  //       setTeamData(data.result);
+  //       setIsLoading(false);
+  //     }
+  //     // result만 있는 경우
+  //     else if(data && data.result) {
+  //       console.log("✅ 수동 재시도 - 팀 데이터 업데이트 중 (result만 있음):", data.result);
+  //       setTeamData(data.result);
+  //       setIsLoading(false);
+  //     }
+  //     else {
+  //       console.log("❌ 수동 재시도 - 팀 로비 데이터 수신 실패:", data);
+  //     }
+  //   });
+  // };
 
   const handleExitRoom = async () => {
     // 팀 나가기 api 연동
@@ -306,9 +373,24 @@ const TeamLobby = () => {
           <SubTitle>(팀 당 6명까지 참가할 수 있어요!)</SubTitle>
         </TitleContainer>
 
-        <QuestionButton onClick={handleQuestion}>
-          <img src={question} alt="궁금합니다!"/>
-        </QuestionButton>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <QuestionButton onClick={handleQuestion}>
+            <img src={question} alt="궁금합니다!"/>
+          </QuestionButton>
+          {/* <button 
+            onClick={handleRetrySubscription}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#007bff',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            구독 재시도
+          </button> */}
+        </div>
       </InfoContainer>
 
       <MemberItemWrapper>
