@@ -30,13 +30,6 @@ const CreateRoom = () => {
     const [yearSet, setYearSet] = useState("");         // 연도 설정
     const [seedMoney, setSeedMoney] = useState("");     // 시드머니(10,000 ~ 1,000,000)
 
-    // 게임 코드 생성
-    const handleCode = () => {
-        const code = Math.random().toString(36).substring(2, 8).toUpperCase();
-        setInviteCode(code);
-        setCopy(false);
-    }
-
     // 게임 코드 복사
     const handleCopy = () => {
         if (inviteCode) {
@@ -71,6 +64,33 @@ const CreateRoom = () => {
         const clamped = clamp(v, min, max);
         const snapped = step > 1 ? Math.round(clamped / step) * step : clamped;
         setter(String(clamp(snapped, min, max)));
+    };
+
+    // 게임 코드 생성(중복 확인) API
+    const handleCode = async () => {
+        setCopy(false);
+
+        const raw = localStorage.getItem('userData');
+        const token = raw ? (JSON.parse(raw).accessToken || JSON.parse(raw).token || JSON.parse(raw).jwt) : null;
+        console.log('[TOKEN]', token);
+
+        try {
+            const { data } = await axios.post(`${apiUrl}/api/rooms/invites`, null, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                },
+            });
+
+            if (!data?.isSuccess || !data?.result?.code) {
+                throw new Error(data?.message || '게임 코드 생성 실패');
+            }
+
+            setInviteCode(data.result.code);
+        } catch (err) {
+            console.error(err);
+                alert(err?.response?.data?.message || err.message || '게임 코드 생성 실패');
+        }
     };
 
     // 방 만들기 API
@@ -118,8 +138,9 @@ const CreateRoom = () => {
             console.log('방 만들기 완료:', data);
 
             // for test
-            navigate('/test');
+            navigate('/lobby');
         } catch (err) {
+            console.log('방 만들기:', data);
             console.error(err);
             console.error(err?.response?.data);
             alert(err?.response?.data?.message || err.message || '방 만들기 실패');
@@ -234,16 +255,17 @@ const CreateRoom = () => {
                 {/* 연도 설정 */}
                 <InputBox>
                     <Label>연도 설정</Label>
-                    <Select value={yearSet} onChange={(e) => setYearSet(e.target.value)}>
-                        <option value="" disabled hidden>
-                            게임을 진행할 연도를 설정해 주세요.
-                        </option>
-                        {[2000, 2005, 2010, 2015].map((y) => (
-                            <option key={y} value={y}>
-                                {y}
-                            </option>
-                        ))}
-                    </Select>
+                    <Input 
+                        value={yearSet}
+                        type="number" 
+                        placeholder="게임을 진행할 연도를 설정해 주세요. (2000 ~ 2014)" 
+                        min="2000" 
+                        max="2014"
+                        inputMode="numeric"
+                        step="1"
+                        onChange={handleNumChange(setYearSet)}
+                        onBlur={handleClampOnBlur(setYearSet, 2000, 2014)}
+                    />
                 </InputBox>
 
                 {/* 시드머니 */}
