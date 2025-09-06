@@ -44,8 +44,8 @@ const JoinRoom = () => {
 
             console.log('방 참가하기 완료:', data);
             
-            // for test
-            navigate('/lobby');
+            const roomId = data.result.roomId;
+            navigate(`/lobby/${roomId}`);
         } catch (err) {
             console.error(err);
             console.error(err?.response?.data);
