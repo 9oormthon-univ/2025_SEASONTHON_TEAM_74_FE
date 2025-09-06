@@ -108,15 +108,24 @@ const Lobby = () => {
 
   // 마운트 시점과 roomId가 바뀔 때마다 로비 데이터 호출 함수 실행
   useEffect(() => {
-    fetchLobbyData(); // 먼저 초기 데이터 로드(웹소켓 연결 전)
+    const initializeLobby = async () => {
+      // 먼저 초기 데이터 로드
+      await fetchLobbyData();
+      
+      // 웹소켓 연결
+      connect();
+      
+      // 연결이 완료된 후 구독 (약간의 지연을 두고)
+      setTimeout(() => {
+        subscribeToLobby(roomId, (data) => {
+          console.log('로비 데이터 수신:', data);
+          setLobbyData(data);
+          setLoading(false);
+        });
+      }, 1000);
+    };
 
-    connect(); // 웹소켓 연결
-
-    // 로비 토픽 구독
-    subscribeToLobby(roomId, (data) => {
-      setLobbyData(data);
-      setLoading(false);
-    })
+    initializeLobby();
     
     return () => {
       // 로비 토픽 구독 해제
