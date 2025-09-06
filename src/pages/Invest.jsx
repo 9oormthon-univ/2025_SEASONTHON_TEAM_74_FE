@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import TitleHeader from '../components/TitleHeader';
 import InfoCard from '../components/game/InfoCard';
@@ -8,6 +9,18 @@ import NextButton from '../components/game/NextButton';
 import ChatButton from '../components/game/ChatButton';
 
 const Invest = () => {
+    const navigate = useNavigate();
+    
+    // 최종 집행
+    const handleNext = () => {
+        navigate('/result');
+    }
+
+    // 채팅창 열기
+    const handleChat = () => {
+        navigate('/test');
+    }
+
     const money = "1,000,000";
 
     const stocks = Array.from({ length: 16 }, (_, i) => ({
@@ -84,8 +97,8 @@ const Invest = () => {
 
                 {/* [최종 집행] & [채팅창 열기] 버튼 */}
                 <BtnContainer>
-                    <NextButton text="최종 집행" onClick={() => alert('최종 집행')} />
-                    <ChatButton text="채팅창 열기" onClick={() => alert('채팅창 열기')} />
+                    <NextButton text="최종 집행" onClick={handleNext} />
+                    <ChatButton text="채팅창 열기" onClick={handleChat} />
                 </BtnContainer>
             </BodyContainer>
 

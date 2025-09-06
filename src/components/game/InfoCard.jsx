@@ -1,10 +1,15 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const InfoCard = ({ title, items }) => {
+const InfoCard = ({ 
+    title, 
+    items, 
+    background = "#E0F7F4", 
+    titleColor = "#00C2A8"
+}) => {
     return (
-        <Wrapper>
-            <Heading>{title}</Heading>
+        <Wrapper $bg={background}>
+            <Heading $color={titleColor}>{title}</Heading>
             <Container>
                 <List>
                     {items.map((item, idx) => (
@@ -19,6 +24,7 @@ const InfoCard = ({ title, items }) => {
 export default InfoCard;
 
 const Wrapper = styled.div`
+    background-color: ${({ $bg }) => $bg};
     width: 100%;
     max-width: 1200px;
     min-height: 140px;
@@ -28,12 +34,11 @@ const Wrapper = styled.div`
     box-sizing: border-box;
     border-radius: 20px;
     padding: 24px 28px;
-    background-color: #E0F7F4;
     cursor: default;
 `;
 
 const Heading = styled.span`
-    color: #00C2A8;
+    color: ${({ $color }) => $color};
     font-size: 28px;
     font-weight: 500;
     text-align: left;
