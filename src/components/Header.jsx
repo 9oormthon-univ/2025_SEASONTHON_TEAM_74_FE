@@ -8,7 +8,7 @@ import right from "./../assets/images/right.png";
 
 const Header = () => {
   const navigate = useNavigate();
-  const { user, initialize } = useAuthStore();
+  const { user, initialize, logout } = useAuthStore();
 
   const navigateToHome = () => {
     navigate("/");
@@ -48,7 +48,7 @@ const Header = () => {
         ) : (
           <>
             <WelcomeText>{user.nickname}님, 반갑습니다.</WelcomeText>
-            <LogButton>로그아웃</LogButton>
+            <LogButton onClick={logout}>로그아웃</LogButton>
           </>
         )}
 
