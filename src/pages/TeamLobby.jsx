@@ -1,4 +1,4 @@
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useState } from "react";
 import Header from "../components/Header";
 import TeamLobbyItem from "../components/TeamLobbyItem";
@@ -35,6 +35,8 @@ const mockData = {
 
 const TeamLobby = () => {
   const navigate = useNavigate();
+
+  const { roomId, teamId } = useParams();
 
   const [teamData, setTeamData] = useState(mockData.result);
   const currentUserNickname = JSON.parse(localStorage.getItem("userData") || "{}")?.nickname;

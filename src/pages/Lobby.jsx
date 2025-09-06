@@ -3,62 +3,64 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Header from "../components/Header";
 import TeamCard from "../components/TeamCard";
+import { useWebsocketStore } from "../context/Websocket";
 
 import styled from "styled-components";
 
-const mockData = {
-  roomId: 9,
-  nickName: "string",
-  teamDetail: [
-    {
-      teamId: 1,
-      teamName: "팀명 1",
-      isReady: true,
-      leaderNickName: "ZXCV",
-      memberNickNames: ["153212", "string", "QWER", "d", "d"],
-    },
-    {
-      teamId: 2,
-      teamName: "팀명 2",
-      isReady: false,
-      leaderNickName: null,
-      memberNickNames: [],
-    },
-    {
-      teamId: 3,
-      teamName: "팀명 3",
-      isReady: false,
-      leaderNickName: null,
-      memberNickNames: [],
-    },
-    {
-      teamId: 4,
-      teamName: "팀명 4",
-      isReady: false,
-      leaderNickName: null,
-      memberNickNames: [],
-    },
-    {
-      teamId: 5,
-      teamName: "팀명 5",
-      isReady: false,
-      leaderNickName: null,
-      memberNickNames: [],
-    },
-    {
-      teamId: 6,
-      teamName: "팀명 6",
-      isReady: false,
-      leaderNickName: null,
-      memberNickNames: [],
-    },
-  ],
-};
+// const mockData = {
+//   roomId: 9,
+//   nickName: "string",
+//   teamDetail: [
+//     {
+//       teamId: 1,
+//       teamName: "팀명 1",
+//       isReady: true,
+//       leaderNickName: "ZXCV",
+//       memberNickNames: ["153212", "string", "QWER", "d", "d"],
+//     },
+//     {
+//       teamId: 2,
+//       teamName: "팀명 2",
+//       isReady: false,
+//       leaderNickName: null,
+//       memberNickNames: [],
+//     },
+//     {
+//       teamId: 3,
+//       teamName: "팀명 3",
+//       isReady: false,
+//       leaderNickName: null,
+//       memberNickNames: [],
+//     },
+//     {
+//       teamId: 4,
+//       teamName: "팀명 4",
+//       isReady: false,
+//       leaderNickName: null,
+//       memberNickNames: [],
+//     },
+//     {
+//       teamId: 5,
+//       teamName: "팀명 5",
+//       isReady: false,
+//       leaderNickName: null,
+//       memberNickNames: [],
+//     },
+//     {
+//       teamId: 6,
+//       teamName: "팀명 6",
+//       isReady: false,
+//       leaderNickName: null,
+//       memberNickNames: [],
+//     },
+//   ],
+// };
 
 const Lobby = () => {
   const { roomId } = useParams(); // App.jsx에서 경로 수정할 것
-
   const navigate = useNavigate();
+
+  const { connect, disconnect, subscribeToLobby, unsubscribeFromTopic } = useWebsocketStore();
 
   const [loading, setLoading] = useState(true);
   const [lobbyData, setLobbyData] = useState(null);
@@ -70,27 +72,17 @@ const Lobby = () => {
     try {
       setLoading(true);
 
-      // mockData로 우선 테스트
-      setLobbyData(mockData);
-      console.log("mockData로 테스트 중...");
+      const res = await axios.get(
+        `${REST_API}/api/rooms/${roomId}/lobby`
+      );
 
-
-      // 추후 api 연결시에 위 두 줄 코드는 삭제하고, 아래 코드는 주석 해제해주세요!
-      // const res = await axios.get(
-      //   `${REST_API}/api/rooms/${roomId}/lobby`
-      // );
-
-      // if (res.data.isSuccess) {
-      //   setLobbyData(res.data.result);
-      //   console.log("로비 데이터 로드 성공!");
-      // } 
-      // else {
-      //   console.log("로비 데이터 로드 실패: ", res.data.message);
-      //   /*
-      //   우선은 목데이터로 사용합니다 추후에 아래 코드를 지워주세요
-      //   */
-      //  setLobbyData(mockData);
-      // }
+      if (res.data.isSuccess) {
+        setLobbyData(res.data.result);
+        console.log("로비 데이터 로드 성공!");
+      } 
+      else {
+        console.log("로비 데이터 로드 실패: ", res.data.message);
+      }
     } 
     catch (err) {
       console.error("API 호출 에러: ", err);
@@ -102,7 +94,20 @@ const Lobby = () => {
 
   // 마운트 시점과 roomId가 바뀔 때마다 로비 데이터 호출 함수 실행
   useEffect(() => {
-    fetchLobbyData();
+    fetchLobbyData(); // 먼저 초기 데이터 로드(웹소켓 연결 전)
+
+    connect(); // 웹소켓 연결
+
+    // 로비 토픽 구독
+    subscribeToLobby(roomId, (data) => {
+      setLobbyData(data);
+      setLoading(false);
+    })
+    
+    return () => {
+      // 로비 토픽 구독 해제
+      unsubscribeFromTopic(`/topic/room/${roomId}/lobby`);
+    };
   }, [roomId]);
 
   // 로딩 중일 때 화면
@@ -135,7 +140,7 @@ const Lobby = () => {
         console.log(`${role}이 되셨습니다.`);
 
         // 팀 참가에 성공하였으므로 바로 아래에 해당 팀 로비로 이동(teamId 넣어서 )
-        navigate("/team-lobby");
+        navigate(`/team-lobby/${roomId}/${teamId}`);
       }
       else {
         alert(res.data.message || "팀 참가에 실패하셨습니다.");
@@ -153,7 +158,7 @@ const Lobby = () => {
         const res = await axios.delete(`${REST_API}/api/rooms/${roomId}/participants/me`);
 
         if(res.data.isSuccess) {
-          console.log("방 나기기에 성공하셨습니다.");
+          console.log("방 나가가기에 성공하셨습니다.");
           navigate("/");
         }
         else {

@@ -5,4 +5,7 @@ import { imagetools } from 'vite-imagetools'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), imagetools()],
+  define: {
+    global: 'globalThis',
+  }
 })

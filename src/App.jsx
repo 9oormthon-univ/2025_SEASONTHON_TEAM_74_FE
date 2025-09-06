@@ -26,8 +26,8 @@ function App() {
       <Route path="/join-room" element={<JoinRoom />} />
       <Route path="/stock-card" element={<StockCard />} />
       <Route path="/game-guide" element={<GameGuide />} />
-      <Route path="/lobby" element={<Lobby />} />
-      <Route path="/team-lobby" element={<TeamLobby />} />
+      <Route path="/lobby/:roomId" element={<Lobby />} />
+      <Route path="/team-lobby/:roomId/:teamId" element={<TeamLobby />} />
       <Route path="/rule" element={<Rule />} />
       <Route path="/invest" element={<Invest />} />
       <Route path="/lock" element={<Lock />} />
