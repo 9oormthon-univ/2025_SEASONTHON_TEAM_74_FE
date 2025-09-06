@@ -1,36 +1,38 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "../components/Header";
 import TeamLobbyItem from "../components/TeamLobbyItem";
 import CountdownTimer from "../components/game/CountdownTimer";
 import TeamLobbyButtons from "../components/TeamLobbyButtons";
+import { useWebsocketStore } from "../context/Websocket";
+import axios from "axios";
 
 import styled from "styled-components";
 import question from "./../assets/images/question.svg"; 
 
-const mockData = {
-  "isSuccess": true,
-  "code": "COMMON200",
-  "message": "성공!",
-  "result": {
-    "teamId": 1,
-    "teamName": "팀명 1",
-    "leader": {
-      "ㅇㅇㅇ": false  //리더는 준비완료 상태가 따로 없습니다! 팀원 다 준비되면 팀 확정하기 버튼이 가능합니다!
-    },
-    "members": [
-      {
-        "유림": false   //멤버 닉네임 : 준비완료 상태
-      },
-      {
-        "ㄴㄴㄴ": true //닉네임 : 준비완료 상태
-      },
-      {
-        "QWER": true
-      }
-    ]
-  }
-}
+// const mockData = {
+//   "isSuccess": true,
+//   "code": "COMMON200",
+//   "message": "성공!",
+//   "result": {
+//     "teamId": 1,
+//     "teamName": "팀명 1",
+//     "leader": {
+//       "ㅇㅇㅇ": false  //리더는 준비완료 상태가 따로 없습니다! 팀원 다 준비되면 팀 확정하기 버튼이 가능합니다!
+//     },
+//     "members": [
+//       {
+//         "유림": false   //멤버 닉네임 : 준비완료 상태
+//       },
+//       {
+//         "ㄴㄴㄴ": true //닉네임 : 준비완료 상태
+//       },
+//       {
+//         "QWER": true
+//       }
+//     ]
+//   }
+// }
 
 
 const TeamLobby = () => {
@@ -38,12 +40,15 @@ const TeamLobby = () => {
 
   const { roomId, teamId } = useParams();
 
-  const [teamData, setTeamData] = useState(mockData.result);
+  const { connect, disconnect, subscribeToTeamLobby, unsubscribeFromTopic, sendMessage, isConnected } = useWebsocketStore();
+
+  const [teamData, setTeamData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const currentUserNickname = JSON.parse(localStorage.getItem("userData") || "{}")?.nickname;
   const [isTeamConfirmed, setIsTeamConfirmed] = useState(false);
   const [isUserReady, setIsUserReady] = useState(false);
 
-  const leaderNickname = Object.keys(teamData.leader)[0];
+  const leaderNickname = teamData?.leader ? Object.keys(teamData.leader)[0] : "";
 
   // 현재 사용자의 역할(leader 또는 member)
   const role = currentUserNickname === leaderNickname ? "leader" : "member";
@@ -51,33 +56,94 @@ const TeamLobby = () => {
   // 게임까지 몇초가 남았는지
   const second = 3;
 
+  useEffect(() => {
+    connect();
+
+    const topic = `/topic/room/${roomId}/team/${teamId}`;
+    subscribeToTeamLobby(roomId, teamId, (data) => {
+      console.log("팀 로비 데이터 수신:", data);
+
+      // 팀 데이터 업데이트
+      if(data.isSuccess && data.result) {
+        setTeamData(data.result);
+        setIsLoading(false);
+      }
+      else {
+        console.log("팀 로비 데이터 수신 실패:", data.message);
+      }
+    });
+
+    return () => {
+      // 팀 로비 토픽 구독 해제
+      unsubscribeFromTopic(topic);
+    };
+
+  }, [roomId, teamId, connect, disconnect, subscribeToTeamLobby, unsubscribeFromTopic]);
+
   const handleQuestion = () => {
     navigate("/rule");
   };
 
-  const handleExitRoom = () => {
+  const handleExitRoom = async () => {
     // 팀 나가기 api 연동
+    try {
+      const res = await axios.delete(`/api/rooms/${roomId}/${teamId}/me`);
 
-    navigate("/lobby"); // API 연동 후 RoomId를 넘겨서 나가도록
+      if(res.data.isSuccess) {
+        console.log("팀 나가가기에 성공하셨습니다.");
+        navigate(`/lobby/${roomId}`);
+      }
+      else {
+        alert(res.data.message || "팀 나가기에 실패하셨습니다.");
+      }
+    }
+    catch(err) {
+      console.error("팀 나가기 오류: ", err);
+    }
   };
 
-  const handleReady = () => {
-    // 팀원 준비 상태 업데이트 api 연동
+  const handleReady = async() => {
+    try {
+      const res = await axios.patch(`/api/rooms/${roomId}/me/ready`);
 
-    // setIsUserReady(true);
+      if(res.data.isSuccess) {
+        console.log("준비 상태가 되셨습니다.");
+        setIsUserReady(true);
+      }
+      else {
+        alert(res.data.message || "준비 상태에 실패하셨습니다.");
+      }
+    }
+    catch(err) {
+      console.error("준비하기 오류: ", err);
+    }
   }
 
-  const isAllMembersReady = teamData.members.every((member) => Object.values(member)[0]);
+  // 모든 팀원이 준비되었는지 확인하는 로직
+  const isAllMembersReady = teamData?.members?.every(member => Object.values(member)[0] === true);
 
-  const handleConfirmTeam = () => {
+  const handleConfirmTeam = async () => {
     if(isAllMembersReady) {
       // 팀 확정하기 api 연동
-      
-      // setIsTeamConfirmed(true);
+      try {
+        const res = await axios.patch(`/api/rooms/${roomId}/${teamId}/confirm`);
+
+        if(res.data.isSuccess) {
+          console.log("팀 확정이 되셨습니다.");
+          setIsTeamConfirmed(true);
+        }
+        else {
+          alert(res.data.message || "팀 확정에 실패하셨습니다.");
+        }
+      }
+      catch(err) {
+        console.error("팀 확정 오류: ", err);
+      }
     }
     else {
       alert("모든 팀원이 준비하기 버튼을 눌렀어야 팀 확정하기 버튼이 활성화됩니다.");
     }
+
   };
 
   // 팀명 변경 핸들러
@@ -137,7 +203,7 @@ const TeamLobby = () => {
         {/* 팀명 입력 */}
         <TeamLobbyItem 
           title="팀명"
-          content={teamData.teamName || `팀명을 변경하지 않으시면 자동으로 ${teamData.teamName}로 지정이 됩니다.`}
+          content={teamData?.teamName || `팀명을 변경하지 않으시면 자동으로 ${teamData.teamName}로 지정이 됩니다.`}
           isEditable={role === "leader"}
           isDisabled={isInputDisabled("team")}
           onContentChange={handleTeamNameChange}
