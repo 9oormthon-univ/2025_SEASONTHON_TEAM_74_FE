@@ -13,7 +13,7 @@ import Rule from './pages/Rule';
 import Invest from './pages/Invest';
 import Lock from './pages/Lock';
 import Result from './pages/Result';
-
+import Final from './pages/Final';
 
 function App() {
   return (
@@ -32,6 +32,7 @@ function App() {
       <Route path="/invest" element={<Invest />} />
       <Route path="/lock" element={<Lock />} />
       <Route path="/result" element={<Result />} />
+      <Route path="/final" element={<Final />} />
     </Routes>
   );
 }
