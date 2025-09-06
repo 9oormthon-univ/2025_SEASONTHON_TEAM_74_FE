@@ -3,14 +3,14 @@ import styled from "styled-components";
 const TeamLobbyButtons = ({role, handleExitRoom, handleReady, handleConfirmTeam}) => {
   return (
     <ButtonGroup >
-      <ExitButton>
+      <ExitButton onClick={handleExitRoom}>
         나가기
       </ExitButton>
 
       {role === "leader" ? (
-        <ActionButton>팀 확정하기</ActionButton>
+        <ActionButton onClick={handleConfirmTeam}>팀 확정하기</ActionButton>
       ) : (
-        <ActionButton>준비하기</ActionButton>
+        <ActionButton onClick={handleReady}>준비하기</ActionButton>
       )}
     </ButtonGroup>
   );
@@ -26,7 +26,7 @@ const ButtonGroup = styled.div`
   margin-bottom: 60px;
 `;
 
-const ExitButton = styled.div`
+const ExitButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -46,7 +46,7 @@ const ExitButton = styled.div`
 `;
 
 
-const ActionButton = styled.div`
+const ActionButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
