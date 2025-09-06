@@ -45,7 +45,7 @@ const JoinRoom = () => {
             console.log('방 참가하기 완료:', data);
             
             // for test
-            navigate('/test');
+            navigate('/lobby');
         } catch (err) {
             console.error(err);
             console.error(err?.response?.data);
