@@ -2,7 +2,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Header from "../components/Header";
 import TeamLobbyItem from "../components/TeamLobbyItem";
-import CountdownTimer from "../components/game/CountdownTimer";
 import TeamLobbyButtons from "../components/TeamLobbyButtons";
 import { useWebsocketStore } from "../context/Websocket";
 import { useAuthStore } from "../context/authStore";
@@ -170,34 +169,34 @@ const TeamLobby = () => {
   };
 
   // 디버깅용: 수동으로 구독 재시도
-  const handleRetrySubscription = () => {
-    console.log('🔄 수동 구독 재시도');
-    subscribeToTeamLobby(roomId, teamId, (data) => {
-      console.log("📨 수동 재시도 - 팀 로비 데이터 수신:", data);
+  // const handleRetrySubscription = () => {
+  //   console.log('🔄 수동 구독 재시도');
+  //   subscribeToTeamLobby(roomId, teamId, (data) => {
+  //     console.log("📨 수동 재시도 - 팀 로비 데이터 수신:", data);
       
-      // 팀 데이터 업데이트 - 서버에서 직접 팀 데이터를 보내는 경우
-      if(data && data.teamId && data.teamName) {
-        console.log("✅ 수동 재시도 - 팀 데이터 업데이트 중 (직접 데이터):", data);
-        setTeamData(data);
-        setIsLoading(false);
-      }
-      // 기존 API 응답 형태인 경우
-      else if(data && data.isSuccess && data.result) {
-        console.log("✅ 수동 재시도 - 팀 데이터 업데이트 중 (API 응답):", data.result);
-        setTeamData(data.result);
-        setIsLoading(false);
-      }
-      // result만 있는 경우
-      else if(data && data.result) {
-        console.log("✅ 수동 재시도 - 팀 데이터 업데이트 중 (result만 있음):", data.result);
-        setTeamData(data.result);
-        setIsLoading(false);
-      }
-      else {
-        console.log("❌ 수동 재시도 - 팀 로비 데이터 수신 실패:", data);
-      }
-    });
-  };
+  //     // 팀 데이터 업데이트 - 서버에서 직접 팀 데이터를 보내는 경우
+  //     if(data && data.teamId && data.teamName) {
+  //       console.log("✅ 수동 재시도 - 팀 데이터 업데이트 중 (직접 데이터):", data);
+  //       setTeamData(data);
+  //       setIsLoading(false);
+  //     }
+  //     // 기존 API 응답 형태인 경우
+  //     else if(data && data.isSuccess && data.result) {
+  //       console.log("✅ 수동 재시도 - 팀 데이터 업데이트 중 (API 응답):", data.result);
+  //       setTeamData(data.result);
+  //       setIsLoading(false);
+  //     }
+  //     // result만 있는 경우
+  //     else if(data && data.result) {
+  //       console.log("✅ 수동 재시도 - 팀 데이터 업데이트 중 (result만 있음):", data.result);
+  //       setTeamData(data.result);
+  //       setIsLoading(false);
+  //     }
+  //     else {
+  //       console.log("❌ 수동 재시도 - 팀 로비 데이터 수신 실패:", data);
+  //     }
+  //   });
+  // };
 
   const handleExitRoom = async () => {
     // 팀 나가기 api 연동
@@ -378,7 +377,7 @@ const TeamLobby = () => {
           <QuestionButton onClick={handleQuestion}>
             <img src={question} alt="궁금합니다!"/>
           </QuestionButton>
-          <button 
+          {/* <button 
             onClick={handleRetrySubscription}
             style={{
               padding: '8px 16px',
@@ -390,7 +389,7 @@ const TeamLobby = () => {
             }}
           >
             구독 재시도
-          </button>
+          </button> */}
         </div>
       </InfoContainer>
 
