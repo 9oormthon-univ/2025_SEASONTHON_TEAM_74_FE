@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../context/authStore';
+import { useEffect } from 'react';
 
 import styled from 'styled-components';
 import "./../assets/styles/variables.css";
@@ -7,7 +8,7 @@ import right from "./../assets/images/right.png";
 
 const Header = () => {
   const navigate = useNavigate();
-  const {user} = useAuthStore();
+  const { user, initialize } = useAuthStore();
 
   const navigateToHome = () => {
     navigate("/");
@@ -16,16 +17,16 @@ const Header = () => {
   const REST_API_KEY = import.meta.env.VITE_KAKAO_REST_API_KEY;
   const REDIRECT_URI = import.meta.env.VITE_KAKAO_REDIRECT_URI;
 
-  const handleKakaoLogin = () => {
-    if (!REST_API_KEY || !REDIRECT_URI) {
-      console.error('카카오 로그인 설정이 완료되지 않았습니다. 환경 변수를 확인해주세요.');
-      alert('로그인 기능을 준비 중입니다. 잠시만 기다려주세요.');
-      return;
-    }
-    
-    const kakaoURL = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}&response_type=code`;
+  const kakaoURL = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}&response_type=code`;
+
+  const handleKakaoLogin = () => {    
     window.location.href = kakaoURL;
   };
+
+  // 컴포넌트 마운트 시 사용자 정보 초기화화
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
 
   return (
     <HeaderWrapper>
@@ -46,7 +47,7 @@ const Header = () => {
           </>
         ) : (
           <>
-            <WelcomeText>{user}님, 반갑습니다.</WelcomeText>
+            <WelcomeText>{user.nickname}님, 반갑습니다.</WelcomeText>
             <LogButton>로그아웃</LogButton>
           </>
         )}
