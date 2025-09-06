@@ -28,7 +28,7 @@ export const useWebsocketStore = create((set, get) => ({
 
     // 1. 소켓 객체 생성
     // 전송 계층(실제 네트워크 연결/해제)
-    const socket = new SockJS(`${import.meta.env.VITE_API_URL}/ws-stock`);
+    const socket = new SockJS(`${import.meta.env.VITE_API_URL}/connect`);
     
     // 2. STOMP 클라이언트 설정
     // 소켓 위에서 메시징 규칙을 정의
@@ -169,7 +169,7 @@ export const useWebsocketStore = create((set, get) => ({
 
     if (client && client.connected) {
       client.publish({
-        destination: `/publish${destination}`, 
+        destination: `/publish/${roomId}`, 
         body: JSON.stringify(body),
         headers: {
           'Authorization': `Bearer ${token}`,

@@ -210,7 +210,7 @@ const TeamLobby = () => {
           return;
         }
 
-        const res = await axios.patch(`/api/rooms/${roomId}/${teamId}/confirm`, {}, {
+        const res = await axios.patch(`${REST_API}/api/rooms/${roomId}/${teamId}/confirm`, {}, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
