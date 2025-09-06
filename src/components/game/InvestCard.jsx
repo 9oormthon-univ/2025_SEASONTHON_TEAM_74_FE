@@ -2,6 +2,17 @@ import React from 'react';
 import styled from 'styled-components';
 
 const InvestCard = ({ id, name, category, rate, price, owned, openPortfolio }) => {
+    
+    // 매도 버튼
+    const handleSell = () => {
+        alert('매도 -1');
+    }
+
+    // 매수 버튼
+    const handleBuy = () => {
+        alert('매수 +1');
+    }
+
     return (
         <Wrapper>
             <Box>
@@ -21,8 +32,8 @@ const InvestCard = ({ id, name, category, rate, price, owned, openPortfolio }) =
             </Box>
 
             <BtnContainer>
-                <SellBtn>매도 -1</SellBtn>
-                <BuyBtn>매수 +1</BuyBtn>
+                <SellBtn onClick={handleSell}>매도 -1</SellBtn>
+                <BuyBtn onClick={handleBuy}>매수 +1</BuyBtn>
             </BtnContainer>
         </Wrapper>
     );

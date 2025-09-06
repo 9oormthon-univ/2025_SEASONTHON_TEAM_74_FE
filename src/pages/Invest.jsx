@@ -5,20 +5,21 @@ import TitleHeader from '../components/TitleHeader';
 import InfoCard from '../components/game/InfoCard';
 import InvestCard from '../components/game/InvestCard';
 import PortfolioCard from '../components/game/PortfolioCard';
-import NextButton from '../components/game/NextButton';
 import ChatButton from '../components/game/ChatButton';
+import CountdownTimer from '../components/game/CountdownTimer';
 
 const Invest = () => {
     const navigate = useNavigate();
-    
-    // 최종 집행
-    const handleNext = () => {
-        navigate('/result');
-    }
 
     // 채팅창 열기
     const handleChat = () => {
-        navigate('/test');
+        alert('채팅창 열기');
+    }
+
+    // 시간 종료 시
+    const handleTime = () => {
+        alert('시간이 종료되었습니다!');
+        navigate('/result');
     }
 
     const money = "1,000,000";
@@ -61,6 +62,11 @@ const Invest = () => {
                     <Heading>팀 자산: {money}</Heading>
                 </Row>
 
+                {/* 타이머 */}
+                <TimerWrapper>
+                    <CountdownTimer onTimeUp={handleTime} />
+                </TimerWrapper>
+
                 {/* 힌트 */}
                 <InfoCard 
                     title="2018 힌트 :"
@@ -97,7 +103,6 @@ const Invest = () => {
 
                 {/* [최종 집행] & [채팅창 열기] 버튼 */}
                 <BtnContainer>
-                    <NextButton text="최종 집행" onClick={handleNext} />
                     <ChatButton text="채팅창 열기" onClick={handleChat} />
                 </BtnContainer>
             </BodyContainer>
@@ -150,6 +155,13 @@ const Heading = styled.span`
     cursor: default;
 `;
 
+const TimerWrapper = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  align-self: flex-start;
+  margin-bottom: 40px;
+`;
+
 const InvestCardContainer = styled.div`
     width: 100%;
     max-width: 1200px;
@@ -163,9 +175,6 @@ const InvestCardContainer = styled.div`
 const BtnContainer = styled.div`
     width: 100%;
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     margin: 60px 0 80px;
-    gap: 30px;
 `;

@@ -2,7 +2,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Header from "../components/Header";
 import TeamLobbyItem from "../components/TeamLobbyItem";
-import CountdownTimer from "../components/CountdownTimer";
+import CountdownTimer from "../components/game/CountdownTimer";
 import TeamLobbyButtons from "../components/TeamLobbyButtons";
 
 import styled from "styled-components";
