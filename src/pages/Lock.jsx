@@ -17,14 +17,14 @@ const mockData = {
     "year": 2020,
     "teamInvestments": [
       {
-      "teamName": "Team Alpha",
-      "maxInvestmentStock": "삼성전자",
-      "totalInvestmentAmount": 68000
+      "teamName": "1팀",
+      "maxInvestmentStock": "A 뷰티 7",
+      "totalInvestmentAmount": "300,000"
       },
       {
-      "teamName": "Team Alpha",
-      "maxInvestmentStock": "없음",
-      "totalInvestmentAmount": 0
+      "teamName": "2팀",
+      "maxInvestmentStock": "A 뷰티 2",
+      "totalInvestmentAmount": "100,000"
       }
     ]
   }
@@ -76,6 +76,14 @@ const Lock = () => {
         fetchInvestData();
     }, [roomId, roundId]);
 
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            navigate(`/result`);
+        }, 3000);
+
+        return () => clearTimeout(timer); // cleanup
+    }, [navigate, roomId, roundId]);
+
     return (
         <Wrapper>
             <TitleHeader title="체결" />
@@ -86,7 +94,7 @@ const Lock = () => {
                 <Icon src={LockIcon} />
                 <LockText>주문이 잠겼어요!</LockText>
                 <LockText>서버에서 체결 계산을 준비중입니다.</LockText>
-                <TipText>💡팁: 이번 라운드에서 배운 점을 팀과 채팅해 보세요</TipText>
+                {/* <TipText>💡팁: 이번 라운드에서 배운 점을 팀과 채팅해 보세요</TipText> */}
             </BodyContainer>
 
             <InvestStatusWrapper>
@@ -94,7 +102,6 @@ const Lock = () => {
                 <InvestStatusTitle />
 
                 {/* 투자 정보 내용 부분 */}
-                {console.log("팀 정보에 뭐가? ", investData)}
                 {investData?.teamInvestments?.map(item => (
                     <InvestStatusContent 
                         key={item.teamName}

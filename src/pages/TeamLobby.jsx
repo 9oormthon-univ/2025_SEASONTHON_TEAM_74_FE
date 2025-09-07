@@ -230,6 +230,7 @@ const TeamLobby = () => {
     }
   };
 
+  // 준비하기 버튼
   const handleReady = async() => {
     try {
       // JWT 토큰 가져오기
@@ -264,9 +265,10 @@ const TeamLobby = () => {
   // 모든 팀원이 준비되었는지 확인하는 로직
   const isAllMembersReady = teamData?.members?.every(member => Object.values(member)[0] === true) || false;
 
+  // 확정하기 버튼
   const handleConfirmTeam = async () => {
     if(isAllMembersReady) {
-      // 팀 확정하기 api 연동
+      navigate('/rule');
       try {
         // JWT 토큰 가져오기
         const raw = localStorage.getItem('userData');

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import TitleHeader from '../components/TitleHeader';
@@ -9,6 +9,14 @@ const Rule = () => {
     const navigate = useNavigate();
 
     const money = "1,000,000";
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            navigate('/invest');
+        }, 5000);
+
+        return () => clearTimeout(timer);
+    }, [navigate]);
 
     const handleBack = () => {
         navigate(-1);

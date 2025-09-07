@@ -11,12 +11,12 @@ const Final = () => {
     const winnerAssets = "100,000,000";
 
     const teams = [
-        { order: 1, name: "1", totalAsset: "2,456,300", profitRate: "+100", successCount: 5, avgEfficiency: 90 },
-        { order: 2, name: "2", totalAsset: "1,000,000", profitRate: "+100", successCount: 5, avgEfficiency: 90 },
-        { order: 3, name: "3", totalAsset: "1,000,000", profitRate: "+100", successCount: 5, avgEfficiency: 90 },
-        { order: 4, name: "4", totalAsset: "1,000,000", profitRate: "+100", successCount: 5, avgEfficiency: 90 },
-        { order: 5, name: "5", totalAsset: "1,000,000", profitRate: "+100", successCount: 5, avgEfficiency: 90 },
-        { order: 6, name: "6", totalAsset: "1,000,000", profitRate: "+100", successCount: 5, avgEfficiency: 90 },
+        { order: 1, name: "2", totalAsset: "7,456,300", profitRate: "+90", successCount: 21, avgEfficiency: 92 },
+        { order: 2, name: "1", totalAsset: "4,500,000", profitRate: "+50", successCount: 10, avgEfficiency: 85 },
+        // { order: 3, name: "6", totalAsset: "2,000,000", profitRate: "+40", successCount: 18, avgEfficiency: 71 },
+        // { order: 4, name: "2", totalAsset: "1,030,000", profitRate: "+20", successCount: 19, avgEfficiency: 62 },
+        // { order: 5, name: "4", totalAsset: "1,000,350", profitRate: "+10", successCount: 3, avgEfficiency: 54 },
+        // { order: 6, name: "5", totalAsset: "1,000,000", profitRate: "+7", successCount: 5, avgEfficiency: 24 },
     ];
 
     const handleEnd = () => {

@@ -15,49 +15,54 @@ const JoinRoom = () => {
     const [inviteCode, setInviteCode] = useState("");
     const [pwd, setPwd] = useState("");
 
-    // 방 참가하기 API
-    const handleJoin = async () => {
-        // 입력값 검증
-        if (!inviteCode.trim()) return alert('게임 코드를 입력해 주세요.');
-
-        const payload = {
-            nickname: nickname.trim() || undefined,
-            inviteCode: inviteCode.trim(),
-            pwd: pwd.trim() || undefined,
-        };
-
-        console.log('payload:', payload);
-
-        const raw = localStorage.getItem('userData');
-        const token = raw ? (JSON.parse(raw).accessToken || JSON.parse(raw).token || JSON.parse(raw).jwt) : null;
-        console.log('[TOKEN]', token);
-
-        try {
-            const { data } = await axios.post(`${apiUrl}/api/rooms/join`, payload, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-                },
-            });
-
-            if (!data?.isSuccess) {
-                throw new Error(data?.message || '방 참가하기 실패');
-            }
-
-            console.log('방 참가하기 완료:', data);
-            
-            if(nickname.trim()) {
-                updateNickname(nickname.trim());
-            }
-
-            const roomId = data.result.roomId;
-            navigate(`/lobby/${roomId}`);
-        } catch (err) {
-            console.error(err);
-            console.error(err?.response?.data);
-            alert(err?.response?.data?.message || err.message || '방 참가하기 실패');
-        }
+    const handleJoin = () => {
+        navigate('/lobby');
     }
+
+    // 방 참가하기 API
+    // const handleJoin = async () => {
+    //     navigate('/lobby');
+    //     // 입력값 검증
+    //     if (!inviteCode.trim()) return alert('게임 코드를 입력해 주세요.');
+
+    //     const payload = {
+    //         nickname: nickname.trim() || undefined,
+    //         inviteCode: inviteCode.trim(),
+    //         pwd: pwd.trim() || undefined,
+    //     };
+
+    //     console.log('payload:', payload);
+
+    //     const raw = localStorage.getItem('userData');
+    //     const token = raw ? (JSON.parse(raw).accessToken || JSON.parse(raw).token || JSON.parse(raw).jwt) : null;
+    //     console.log('[TOKEN]', token);
+
+    //     try {
+    //         const { data } = await axios.post(`${apiUrl}/api/rooms/join`, payload, {
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //                 ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    //             },
+    //         });
+
+    //         if (!data?.isSuccess) {
+    //             throw new Error(data?.message || '방 참가하기 실패');
+    //         }
+
+    //         console.log('방 참가하기 완료:', data);
+            
+    //         if(nickname.trim()) {
+    //             updateNickname(nickname.trim());
+    //         }
+
+    //         const roomId = data.result.roomId;
+    //         navigate(`/lobby/${roomId}`);
+    //     } catch (err) {
+    //         console.error(err);
+    //         console.error(err?.response?.data);
+    //         alert(err?.response?.data?.message || err.message || '방 참가하기 실패');
+    //     }
+    // }
 
     return (
         <Wrapper>

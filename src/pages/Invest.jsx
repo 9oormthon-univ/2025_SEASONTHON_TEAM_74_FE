@@ -5,11 +5,17 @@ import TitleHeader from '../components/TitleHeader';
 import InfoCard from '../components/game/InfoCard';
 import InvestCard from '../components/game/InvestCard';
 import PortfolioCard from '../components/game/PortfolioCard';
+import NextButton from '../components/game/NextButton';
 import ChatButton from '../components/game/ChatButton';
 import CountdownTimer from '../components/game/CountdownTimer';
 
 const Invest = () => {
     const navigate = useNavigate();
+
+    // 최종 집행
+    const handleNext = () => {
+        navigate('/lock');
+    }
 
     // 채팅창 열기
     const handleChat = () => {
@@ -19,7 +25,7 @@ const Invest = () => {
     // 시간 종료 시
     const handleTime = () => {
         alert('시간이 종료되었습니다!');
-        navigate('/result');
+        navigate('/lock');
     }
 
     const money = "1,000,000";
@@ -73,7 +79,6 @@ const Invest = () => {
                     items={[
                         "평창 동계올림픽 개최",
                         "최저임금 상향 (6490 → 7530, 14.9%)",
-                        " "
                     ]}
                 />
 
@@ -103,6 +108,7 @@ const Invest = () => {
 
                 {/* [최종 집행] & [채팅창 열기] 버튼 */}
                 <BtnContainer>
+                    <NextButton text="최종 집행" onClick={handleNext} />
                     <ChatButton text="채팅창 열기" onClick={handleChat} />
                 </BtnContainer>
             </BodyContainer>
@@ -175,6 +181,16 @@ const InvestCardContainer = styled.div`
 const BtnContainer = styled.div`
     width: 100%;
     display: flex;
-    justify-content: flex-end;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
     margin: 60px 0 80px;
+    gap: 30px;
 `;
+
+// const BtnContainer = styled.div`
+//     width: 100%;
+//     display: flex;
+//     justify-content: flex-end;
+//     margin: 60px 0 80px;
+// `;

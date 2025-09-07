@@ -12,7 +12,7 @@ const Result = () => {
 
     // 다음 라운드
     const handleNext = () => {
-        navigate('/test');
+        navigate('/final');
     }
 
     // 채팅창 열기
@@ -51,26 +51,26 @@ const Result = () => {
           {/* 종목별 성과 */}
           <Title>종목별 성과 :</Title>
           <InfoCard
-            title="총 자산 / 이번 라운드 손익"
+            title="1 라운드 종목별 손익"
             items={[
-              "A 뷰티  40%  +₩50,000 (+5%)",
-              "B 자동차 30%  -₩30,000 (-3%)",
-              "C 헬스케어 30%  +₩100,000 (+10%)",
+              "A 뷰티 40%  /  +₩50,000 (+5%)",
+              "B 자동차 30%  /  -₩30,000 (-3%)",
+              "C 헬스케어 30%  /  +₩100,000 (+10%)",
             ]}
           />
 
           {/* 그래프 */}
-          <Title>그래프 :</Title>
+          {/* <Title>그래프 :</Title>
           <GraphContainer>
             <GraphCard title="총 자산 변화" />
             <GraphCard title="수익 기여도" />
-          </GraphContainer>
+          </GraphContainer> */}
 
           {/* [청산] & [채팅창 열기] 버튼 */}
-          <ModeBtnContainer>
+          {/* <ModeBtnContainer>
             <NextButton text="청산" onClick={handleNext} />
             <NextButton text="유지" onClick={handleNext} />
-          </ModeBtnContainer>
+          </ModeBtnContainer> */}
 
           {/* [다음 라운드] & [채팅창 열기] 버튼 */}
           <BtnContainer>
